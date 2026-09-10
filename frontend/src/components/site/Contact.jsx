@@ -33,7 +33,7 @@ export const Contact = ({ settings }) => {
   const channels = [
     { icon: MessageCircle, label: "Viber", value: settings?.phone, href: settings?.viber, testid: "contact-viber" },
     { icon: Phone, label: "WhatsApp", value: settings?.phone, href: settings?.whatsapp, testid: "contact-whatsapp" },
-    { icon: Instagram, label: "Instagram", value: "@andri.tim", href: settings?.instagram, testid: "contact-instagram" },
+    { icon: Instagram, label: "Instagram", value: settings?.instagram_handle || "@casovi.racunovodstva.andriana", href: settings?.instagram, testid: "contact-instagram" },
     { icon: Mail, label: "Email", value: settings?.email, href: `mailto:${settings?.email}`, testid: "contact-email" },
   ];
 

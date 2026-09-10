@@ -136,7 +136,8 @@ DEFAULT_SETTINGS = {
     "phone": "064/455-25-67",
     "viber": "viber://chat?number=%2B381644552567",
     "whatsapp": "https://wa.me/381644552567",
-    "instagram": "https://www.instagram.com/",
+    "instagram": "https://www.instagram.com/casovi.racunovodstva.andriana/",
+    "instagram_handle": "@casovi.racunovodstva.andriana",
     "email": "andritim.centar@gmail.com",
     "notify_email": "andritim.centar@gmail.com",
     "address": "Niš, Srbija",
@@ -165,8 +166,19 @@ DEFAULT_SETTINGS = {
         "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/gfiwdsbw_1.jpeg",
         "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/mekti9ir_3.jpeg",
         "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/c04yi4jw_4.jpeg",
+        "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/fpkxok8v_2.jpeg",
+        "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/tn98tpeu_5.jpeg",
     ],
+    "gallery_title": "Galerija — časovi, sertifikati i materijali",
+    "gallery_note": "Sve slike sa sajta na jednom mestu. Klikni na sliku za veći prikaz.",
     "slot_hours": ["12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"],
+    "results_title": "Rezultati sa poslednjih rokova",
+    "results_note": "Brojevi se ažuriraju posle svakog roka — ovo su ocene mojih učenika.",
+    "results": [
+        {"rok": "Januarski rok 2026.", "subject": "Finansijsko računovodstvo", "tens": 12, "passed": 34},
+        {"rok": "Oktobarski rok 2025.", "subject": "Upravljačko računovodstvo", "tens": 9, "passed": 27},
+        {"rok": "I kolokvijum 2024.", "subject": "Upravljačko računovodstvo", "tens": 31, "passed": 58},
+    ],
     "updated_at": now_iso(),
 }
 
@@ -241,8 +253,16 @@ DEFAULT_TESTIMONIALS = [
 
 
 async def seed():
-    if not await db.settings.find_one({"id": "site"}):
+    existing = await db.settings.find_one({"id": "site"})
+    if not existing:
         await db.settings.insert_one(dict(DEFAULT_SETTINGS))
+    else:
+        missing = {k: v for k, v in DEFAULT_SETTINGS.items() if k not in existing}
+        if not existing.get("instagram") or existing.get("instagram") == "https://www.instagram.com/":
+            missing["instagram"] = DEFAULT_SETTINGS["instagram"]
+            missing["instagram_handle"] = DEFAULT_SETTINGS["instagram_handle"]
+        if missing:
+            await db.settings.update_one({"id": "site"}, {"$set": missing})
     if await db.packages.count_documents({}) == 0:
         docs = []
         for p in DEFAULT_PACKAGES:

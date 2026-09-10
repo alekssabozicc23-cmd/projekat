@@ -80,6 +80,9 @@ export const Consultation = ({ packages, prefill, onPrefillUsed }) => {
                 <label className="block text-xs font-semibold text-[#0A1F44] mb-2">Predmet / paket *</label>
                 <select data-testid="consult-subject" className={input} value={value.subject} onChange={set("subject")}>
                   <option value="">Izaberi...</option>
+                  {prefill && !packages.some((p) => `${p.group} — ${p.name}` === prefill) && (
+                    <option value={prefill}>{prefill}</option>
+                  )}
                   {packages.map((p) => (
                     <option key={p.id} value={`${p.group} — ${p.name}`}>
                       {p.group} — {p.name}

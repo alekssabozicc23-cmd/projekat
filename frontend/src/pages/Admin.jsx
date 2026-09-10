@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Lock, LogOut, Image as ImageIcon, FileText, Video, Package, CalendarDays,
-  MessageSquareQuote, HelpCircle, Phone, Users, Trash2, Plus, Crown, Save, Upload, ExternalLink,
+  MessageSquareQuote, HelpCircle, Phone, Users, Trash2, Plus, Crown, Save, Upload, ExternalLink, Trophy,
 } from "lucide-react";
 import { api, adminApi, fileUrl, setToken, getToken, clearToken } from "../lib/api";
 
@@ -21,6 +21,7 @@ const TABS = [
   { id: "dokumenti", label: "Dokumenti", icon: FileText },
   { id: "video", label: "Video", icon: Video },
   { id: "paketi", label: "Paketi i cene", icon: Package },
+  { id: "rezultati", label: "Rezultati (desetke)", icon: Trophy },
   { id: "termini", label: "Zakazivanje", icon: CalendarDays },
   { id: "utisci", label: "Utisci", icon: MessageSquareQuote },
   { id: "faq", label: "FAQ", icon: HelpCircle },
@@ -105,7 +106,18 @@ const SlikeTab = ({ settings, saveSettings }) => {
       </div>
 
       <div className={card}>
-        <h3 className="font-head text-lg font-semibold text-[#0A1F44]">Galerija (sekcija Utisci)</h3>
+        <h3 className="font-head text-lg font-semibold text-[#0A1F44]">Galerija na početnoj strani</h3>
+        <p className="text-sm text-[#475569] mt-1">Ove slike se prikazuju u sekciji „Galerija” i u utiscima.</p>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Naslov galerije</label>
+            <input className={inputCls} value={draft.gallery_title || ""} onChange={(e) => setDraft({ ...draft, gallery_title: e.target.value })} data-testid="gallery-title-input" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Kratak opis</label>
+            <input className={inputCls} value={draft.gallery_note || ""} onChange={(e) => setDraft({ ...draft, gallery_note: e.target.value })} data-testid="gallery-note-input" />
+          </div>
+        </div>
         <div className="mt-4 space-y-3">
           {(draft.gallery || []).map((g, i) => (
             <div key={i} className="flex flex-wrap gap-3 items-center">
@@ -588,6 +600,85 @@ const TerminiTab = () => {
   );
 };
 
+/* ---------------------------------------------------------------- rezultati */
+const RezultatiTab = ({ settings, saveSettings }) => {
+  const [draft, setDraft] = useState(settings);
+  useEffect(() => setDraft(settings), [settings]);
+  if (!draft) return null;
+
+  const rows = draft.results || [];
+  const setRow = (i, key, value) =>
+    setDraft({ ...draft, results: rows.map((r, k) => (k === i ? { ...r, [key]: value } : r)) });
+
+  return (
+    <div className="space-y-6">
+      <div className={card}>
+        <h3 className="font-head text-lg font-semibold text-[#0A1F44]">Rezultati po rokovima</h3>
+        <p className="text-sm text-[#475569] mt-1">
+          Posle svakog roka unesi broj desetki — brojač na sajtu se animira i odmah prikazuje novi rezultat.
+        </p>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Naslov sekcije</label>
+            <input className={inputCls} value={draft.results_title || ""} onChange={(e) => setDraft({ ...draft, results_title: e.target.value })} data-testid="results-title" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Kratak opis</label>
+            <input className={inputCls} value={draft.results_note || ""} onChange={(e) => setDraft({ ...draft, results_note: e.target.value })} data-testid="results-note" />
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          {rows.map((r, i) => (
+            <div key={i} className="rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-4" data-testid={`admin-result-${i}`}>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+                <div className="sm:col-span-1">
+                  <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Rok</label>
+                  <input className={inputCls} value={r.rok || ""} onChange={(e) => setRow(i, "rok", e.target.value)} placeholder="Januarski rok 2026." data-testid={`result-rok-${i}`} />
+                </div>
+                <div className="sm:col-span-1">
+                  <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Predmet</label>
+                  <input className={inputCls} value={r.subject || ""} onChange={(e) => setRow(i, "subject", e.target.value)} placeholder="Finansijsko računovodstvo" data-testid={`result-subject-${i}`} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Broj desetki</label>
+                  <input type="number" className={inputCls} value={r.tens ?? 0} onChange={(e) => setRow(i, "tens", Number(e.target.value))} data-testid={`result-tens-${i}`} />
+                </div>
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Ukupno položenih</label>
+                    <input type="number" className={inputCls} value={r.passed ?? 0} onChange={(e) => setRow(i, "passed", Number(e.target.value))} data-testid={`result-passed-${i}`} />
+                  </div>
+                  <button
+                    className={`${btnGhost} !text-[#B91C1C]`}
+                    onClick={() => setDraft({ ...draft, results: rows.filter((_, k) => k !== i) })}
+                    data-testid={`result-remove-${i}`}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-3">
+          <button
+            className={btnGhost}
+            onClick={() => setDraft({ ...draft, results: [{ rok: "", subject: "", tens: 0, passed: 0 }, ...rows] })}
+            data-testid="result-add"
+          >
+            <Plus className="w-4 h-4" /> Dodaj novi rok
+          </button>
+          <button className={btnGold} onClick={() => saveSettings(draft)} data-testid="save-results">
+            <Save className="w-4 h-4" /> Sačuvaj rezultate
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /* ---------------------------------------------------------------- kontakt */
 const KontaktTab = ({ settings, saveSettings }) => {
   const [draft, setDraft] = useState(settings);
@@ -598,6 +689,7 @@ const KontaktTab = ({ settings, saveSettings }) => {
     ["viber", "Viber link (viber://chat?number=...)"],
     ["whatsapp", "WhatsApp link (https://wa.me/...)"],
     ["instagram", "Instagram link"],
+    ["instagram_handle", "Instagram korisničko ime (npr. @casovi.racunovodstva.andriana)"],
     ["email", "Email adresa (prikazana na sajtu)"],
     ["notify_email", "Email za obaveštenja o zahtevima"],
     ["address", "Grad / adresa"],
@@ -836,7 +928,7 @@ export default function Admin() {
           />
         )}
         {tab === "termini" && <TerminiTab />}
-        {tab === "utisci" && (
+        {tab === "rezultati" && <RezultatiTab settings={settings} saveSettings={saveSettings} />}        {tab === "utisci" && (
           <ListTab
             endpoint="testimonials"
             publicPath="/testimonials"

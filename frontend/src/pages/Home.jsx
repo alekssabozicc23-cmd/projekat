@@ -4,9 +4,12 @@ import { Header } from "../components/site/Header";
 import { HeroSlider } from "../components/site/HeroSlider";
 import { About } from "../components/site/About";
 import { Packages } from "../components/site/Packages";
+import { Results } from "../components/site/Results";
 import { Consultation } from "../components/site/Consultation";
 import { Highschool } from "../components/site/Highschool";
 import { Materials } from "../components/site/Materials";
+import { Videos } from "../components/site/Videos";
+import { Gallery } from "../components/site/Gallery";
 import { FreeMaterial } from "../components/site/FreeMaterial";
 import { Testimonials } from "../components/site/Testimonials";
 import { Faq } from "../components/site/Faq";
@@ -18,22 +21,25 @@ export default function Home() {
   const [documents, setDocuments] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [faq, setFaq] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [prefill, setPrefill] = useState("");
   const consultRef = useRef(null);
 
   const load = useCallback(async () => {
-    const [s, p, d, t, f] = await Promise.all([
+    const [s, p, d, t, f, v] = await Promise.all([
       api.get("/settings"),
       api.get("/packages"),
       api.get("/documents"),
       api.get("/testimonials"),
       api.get("/faq"),
+      api.get("/videos"),
     ]);
     setSettings(s.data);
     setPackages(p.data);
     setDocuments(d.data);
     setTestimonials(t.data);
     setFaq(f.data);
+    setVideos(v.data);
   }, []);
 
   useEffect(() => {
@@ -60,12 +66,15 @@ export default function Home() {
       <Header settings={settings} />
       <HeroSlider settings={settings} />
       <About settings={settings} />
+      <Results settings={settings} />
       <Packages packages={packages} settings={settings} onOrder={onOrder} />
       <div ref={consultRef}>
         <Consultation packages={packages} prefill={prefill} onPrefillUsed={() => setPrefill("")} />
       </div>
       <Highschool />
       <Materials documents={documents} onOrder={onOrder} />
+      <Videos videos={videos} onOrder={onOrder} />
+      <Gallery settings={settings} />
       <FreeMaterial freeDoc={freeDoc} />
       <Testimonials testimonials={testimonials} gallery={settings.gallery} />
       <Faq faq={faq} />

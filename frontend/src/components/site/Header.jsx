@@ -3,14 +3,17 @@ import { Link } from "react-router-dom";
 import { Menu, X, Phone } from "lucide-react";
 
 const links = [
-  { href: "#o-meni", label: "O meni" },
-  { href: "#studenti", label: "Za studente" },
-  { href: "#srednjoskolci", label: "Srednjoškolci" },
-  { href: "#materijali", label: "Materijali" },
+  { href: "#o-meni", label: "O meni", primary: true },
+  { href: "#rezultati", label: "Rezultati" },
+  { href: "#studenti", label: "Za studente", primary: true },
+  { href: "#srednjoskolci", label: "Srednjoškolci", primary: true },
+  { href: "#materijali", label: "Materijali", primary: true },
+  { href: "#video", label: "Video lekcije" },
+  { href: "#galerija", label: "Galerija", primary: true },
   { href: "#besplatno", label: "Besplatno" },
   { href: "#utisci", label: "Utisci" },
   { href: "#faq", label: "FAQ" },
-  { href: "#kontakt", label: "Kontakt" },
+  { href: "#kontakt", label: "Kontakt", primary: true },
 ];
 
 export const Header = ({ settings }) => {
@@ -44,13 +47,15 @@ export const Header = ({ settings }) => {
           </span>
         </a>
 
-        <nav className="hidden xl:flex items-center gap-7">
+        <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
           {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
               data-testid={`nav-${l.href.replace("#", "")}`}
-              className="text-sm text-white/80 hover:text-[#D4AF37] transition-colors duration-300"
+              className={`text-sm whitespace-nowrap text-white/80 hover:text-[#D4AF37] transition-colors duration-300 ${
+                l.primary ? "" : "hidden 2xl:inline"
+              }`}
             >
               {l.label}
             </a>
@@ -61,7 +66,7 @@ export const Header = ({ settings }) => {
           <a
             href={`tel:${(settings?.phone || "").replace(/[^\d+]/g, "")}`}
             data-testid="header-phone"
-            className="hidden md:inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white text-sm px-4 py-2 transition-colors duration-300"
+            className="hidden xl:inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white text-sm px-4 py-2 whitespace-nowrap transition-colors duration-300"
           >
             <Phone className="w-4 h-4 text-[#D4AF37]" />
             {settings?.phone}
