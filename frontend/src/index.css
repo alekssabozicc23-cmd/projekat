@@ -88,7 +88,7 @@ html {
 
 @keyframes heroZoom {
     from {
-        transform: scale(1.12);
+        transform: scale(1.05);
     }
     to {
         transform: scale(1);

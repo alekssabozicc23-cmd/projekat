@@ -55,8 +55,8 @@ export const HeroSlider = ({ settings }) => {
               src={s.image}
               alt={s.title || "Andri-Tim"}
               loading={i === 0 ? "eager" : "lazy"}
-              className="w-full h-full object-cover object-[center_30%] scale-105"
-              style={{ animation: i === idx ? "heroZoom 9s ease-out forwards" : "none" }}
+              className="w-full h-full object-cover object-[center_28%]"
+              style={{ animation: i === idx ? "heroZoom 12s ease-out forwards" : "none" }}
             />
           </div>
         ))}

@@ -157,7 +157,7 @@ DEFAULT_SETTINGS = {
     "address": "Niš, Srbija",
     "hero_slides": [
         {
-            "image": "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/tn98tpeu_5.jpeg",
+            "image": "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/2sxtrgpv_7.webp",
             "badge": "17 godina iskustva",
             "title": "Položi računovodstvo bez stresa",
             "subtitle": "Uz 17 godina iskustva i preko 3.000 uspešno položenih ispita i kolokvijuma.",
@@ -175,13 +175,13 @@ DEFAULT_SETTINGS = {
             "subtitle": "Sve što ti je potrebno za ispit — na jednom mestu, tvojim tempom.",
         },
     ],
-    "about_image": "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/tn98tpeu_5.jpeg",
+    "about_image": "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/2sxtrgpv_7.webp",
     "gallery": [
         "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/gfiwdsbw_1.jpeg",
         "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/mekti9ir_3.jpeg",
         "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/c04yi4jw_4.jpeg",
         "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/fpkxok8v_2.jpeg",
-        "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/tn98tpeu_5.jpeg",
+        "https://customer-assets-7cd3h4nn.emergentagent.net/job_study-ua-accounting/artifacts/2sxtrgpv_7.webp",
     ],
     "gallery_title": "Galerija — časovi, sertifikati i materijali",
     "gallery_note": "Sve slike sa sajta na jednom mestu. Klikni na sliku za veći prikaz.",
