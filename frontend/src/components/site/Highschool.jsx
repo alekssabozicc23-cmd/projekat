@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Clock, X } from "lucide-react";
 import { api } from "../../lib/api";
 import { Reveal, SectionTitle } from "./Reveal";
 
-const DAYS = ["Pon", "Uto", "Sre", "Čet", "Pet", "Sub", "Ned"];
+const DAYS = ["Pon", "Uto", "Sre", "Čet", "Pet", "Sub"];
 
 const mondayOf = (d) => {
   const x = new Date(d);
@@ -74,19 +74,18 @@ export const Highschool = () => {
     "w-full rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm outline-none transition-all duration-300 focus:border-[#4A90D9] focus:ring-4 focus:ring-[#4A90D9]/10";
 
   return (
-    <section id="srednjoskolci" data-testid="highschool-section" className="py-16 sm:py-24 bg-[#0A1F44] relative grain">
+    <section id="srednjoskolci" data-testid="highschool-section" className="py-16 sm:py-24 bg-[#F7F5F0] relative">
       <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative">
         <Reveal>
           <SectionTitle
-            light
             eyebrow="Za srednjoškolce"
             title="Časovi računovodstva za srednju školu"
-            subtitle="Časovi po 60 minuta, radnim danima i vikendom od 12h do 19h. Izaberi slobodan termin u kalendaru i pošalji zahtev — potvrdu dobijaš lično od Andriane."
+            subtitle="Časovi po 60 minuta, radnim danima i subotom od 14h do 19h. Izaberi slobodan termin u kalendaru i pošalji zahtev — potvrdu dobijaš lično od Andriane."
           />
         </Reveal>
 
         <Reveal delay={100}>
-          <div className="mt-10 rounded-3xl bg-white p-4 sm:p-6 shadow-2xl">
+          <div className="mt-10 rounded-3xl bg-white border border-[#E7EDF6] p-4 sm:p-6 shadow-[0_30px_60px_-40px_rgba(10,31,68,0.45)]">
             <div className="flex items-center justify-between gap-3 mb-5">
               <button
                 onClick={() => shiftWeek(-1)}
@@ -98,10 +97,10 @@ export const Highschool = () => {
               </button>
               <div className="text-center">
                 <div className="font-head text-sm sm:text-base font-semibold text-[#0A1F44]" data-testid="week-label">
-                  {data.week.length ? `${fmt(data.week[0])} – ${fmt(data.week[6])}` : "..."}
+                  {data.week.length ? `${fmt(data.week[0])} – ${fmt(data.week[data.week.length - 1])}` : "..."}
                 </div>
                 <div className="text-xs text-[#94A3B8] mt-0.5 inline-flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> 12:00 – 19:00
+                  <Clock className="w-3 h-3" /> 14:00 – 19:00
                 </div>
               </div>
               <button
@@ -115,8 +114,8 @@ export const Highschool = () => {
             </div>
 
             <div className="overflow-x-auto -mx-2 px-2">
-              <div className="min-w-[620px]" data-testid="slots-grid">
-                <div className="grid grid-cols-8 gap-2 mb-2">
+              <div className="min-w-[560px]" data-testid="slots-grid">
+                <div className="grid grid-cols-7 gap-2 mb-2">
                   <div />
                   {data.week.map((d, i) => (
                     <div key={d} className="text-center">
@@ -126,7 +125,7 @@ export const Highschool = () => {
                   ))}
                 </div>
                 {data.hours.map((h) => (
-                  <div key={h} className="grid grid-cols-8 gap-2 mb-2">
+                  <div key={h} className="grid grid-cols-7 gap-2 mb-2">
                     <div className="text-xs text-[#475569] font-medium grid place-items-center">{h}</div>
                     {data.week.map((d) => {
                       const st = stateOf(d, h);

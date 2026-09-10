@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Lock, LogOut, Image as ImageIcon, FileText, Video, Package, CalendarDays,
-  MessageSquareQuote, HelpCircle, Phone, Users, Trash2, Plus, Crown, Save, Upload, ExternalLink, Trophy,
+  MessageSquareQuote, HelpCircle, Phone, Users, Trash2, Plus, Crown, Save, Upload, ExternalLink, Gift,
 } from "lucide-react";
 import { api, adminApi, fileUrl, setToken, getToken, clearToken } from "../lib/api";
 
@@ -21,7 +21,6 @@ const TABS = [
   { id: "dokumenti", label: "Dokumenti", icon: FileText },
   { id: "video", label: "Video", icon: Video },
   { id: "paketi", label: "Paketi i cene", icon: Package },
-  { id: "rezultati", label: "Rezultati (desetke)", icon: Trophy },
   { id: "termini", label: "Zakazivanje", icon: CalendarDays },
   { id: "utisci", label: "Utisci", icon: MessageSquareQuote },
   { id: "faq", label: "FAQ", icon: HelpCircle },
@@ -423,7 +422,7 @@ const ItemEditor = ({ item, fields, endpoint, titleKey, renderField, onSave, onR
 };
 
 /* ---------------------------------------------------------------- termini */
-const DAYS = ["Pon", "Uto", "Sre", "Čet", "Pet", "Sub", "Ned"];
+const DAYS = ["Pon", "Uto", "Sre", "Čet", "Pet", "Sub"];
 const mondayOf = (d) => {
   const x = new Date(d);
   x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
@@ -496,8 +495,8 @@ const TerminiTab = () => {
         </div>
         <p className="text-sm text-[#475569] mt-1">Klik na slobodan termin ga zatvara, klik na zatvoren ga ponovo otvara.</p>
         <div className="mt-5 overflow-x-auto">
-          <div className="min-w-[620px]">
-            <div className="grid grid-cols-8 gap-2 mb-2">
+          <div className="min-w-[560px]">
+            <div className="grid grid-cols-7 gap-2 mb-2">
               <div />
               {slots.week.map((d, i) => (
                 <div key={d} className="text-center text-xs font-semibold text-[#0A1F44]">
@@ -507,7 +506,7 @@ const TerminiTab = () => {
               ))}
             </div>
             {slots.hours.map((h) => (
-              <div key={h} className="grid grid-cols-8 gap-2 mb-2">
+              <div key={h} className="grid grid-cols-7 gap-2 mb-2">
                 <div className="text-xs text-[#475569] grid place-items-center">{h}</div>
                 {slots.week.map((d) => {
                   const st = slots.slots.find((s) => s.slot_date === d && s.slot_time === h)?.state || "slobodno";
@@ -600,80 +599,152 @@ const TerminiTab = () => {
   );
 };
 
-/* ---------------------------------------------------------------- rezultati */
-const RezultatiTab = ({ settings, saveSettings }) => {
-  const [draft, setDraft] = useState(settings);
-  useEffect(() => setDraft(settings), [settings]);
-  if (!draft) return null;
+/* ---------------------------------------------------------------- video */
+const VideoTab = () => {
+  const [videos, setVideos] = useState([]);
+  const [urls, setUrls] = useState({});
+  const [bulk, setBulk] = useState({ package: "", lines: "" });
+  const [busy, setBusy] = useState(false);
 
-  const rows = draft.results || [];
-  const setRow = (i, key, value) =>
-    setDraft({ ...draft, results: rows.map((r, k) => (k === i ? { ...r, [key]: value } : r)) });
+  const load = useCallback(async () => {
+    const { data } = await api.get("/videos");
+    setVideos(data);
+    setUrls(Object.fromEntries(data.map((v) => [v.id, v.url || ""])));
+  }, []);
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const saveUrls = async () => {
+    setBusy(true);
+    try {
+      const items = videos
+        .filter((v) => (urls[v.id] || "") !== (v.url || ""))
+        .map((v) => ({ id: v.id, url: urls[v.id] || "" }));
+      if (!items.length) {
+        toast.info("Nema izmena za čuvanje.");
+        return;
+      }
+      await adminApi.post("/admin/videos/bulk-urls", { items });
+      toast.success(`Sačuvano linkova: ${items.length}`);
+      load();
+    } catch {
+      toast.error("Čuvanje nije uspelo.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const bulkCreate = async () => {
+    if (!bulk.lines.trim()) {
+      toast.error("Unesi barem jedan red.");
+      return;
+    }
+    await adminApi.post("/admin/videos/bulk-create", bulk);
+    toast.success("Lekcije su dodate.");
+    setBulk({ package: "", lines: "" });
+    load();
+  };
+
+  const remove = async (id) => {
+    await adminApi.delete(`/admin/videos/${id}`);
+    toast.success("Lekcija je obrisana.");
+    load();
+  };
+
+  const groups = [...new Set(videos.map((v) => v.package || "Bez predmeta"))];
+  const filled = videos.filter((v) => (urls[v.id] || "").trim()).length;
 
   return (
     <div className="space-y-6">
       <div className={card}>
-        <h3 className="font-head text-lg font-semibold text-[#0A1F44]">Rezultati po rokovima</h3>
+        <h3 className="font-head text-lg font-semibold text-[#0A1F44]">Brzi unos linkova</h3>
         <p className="text-sm text-[#475569] mt-1">
-          Posle svakog roka unesi broj desetki — brojač na sajtu se animira i odmah prikazuje novi rezultat.
+          Nalepi link (YouTube, Google Drive, Vimeo) pored naziva lekcije i klikni „Sačuvaj sve linkove”.
+          Lekcije bez linka na sajtu pišu „Dostupno uz paket”.
         </p>
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Naslov sekcije</label>
-            <input className={inputCls} value={draft.results_title || ""} onChange={(e) => setDraft({ ...draft, results_title: e.target.value })} data-testid="results-title" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Kratak opis</label>
-            <input className={inputCls} value={draft.results_note || ""} onChange={(e) => setDraft({ ...draft, results_note: e.target.value })} data-testid="results-note" />
-          </div>
+        <div className="mt-3 text-sm font-semibold text-[#1B3A6B]" data-testid="video-progress">
+          Popunjeno: {filled} / {videos.length} lekcija · besplatnih: {videos.filter((v) => v.is_free).length}
         </div>
+        <p className="mt-2 text-xs text-[#94A3B8]">
+          Tri lekcije označene kao „Besplatna” prikazuju se na vrhu video sekcije i gledaju se direktno na sajtu.
+        </p>
+        <button className={`${btnGold} mt-4`} onClick={saveUrls} disabled={busy} data-testid="save-video-urls">
+          <Save className="w-4 h-4" /> {busy ? "Čuvam..." : "Sačuvaj sve linkove"}
+        </button>
+      </div>
 
-        <div className="mt-6 space-y-4">
-          {rows.map((r, i) => (
-            <div key={i} className="rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-4" data-testid={`admin-result-${i}`}>
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
-                <div className="sm:col-span-1">
-                  <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Rok</label>
-                  <input className={inputCls} value={r.rok || ""} onChange={(e) => setRow(i, "rok", e.target.value)} placeholder="Januarski rok 2026." data-testid={`result-rok-${i}`} />
-                </div>
-                <div className="sm:col-span-1">
-                  <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Predmet</label>
-                  <input className={inputCls} value={r.subject || ""} onChange={(e) => setRow(i, "subject", e.target.value)} placeholder="Finansijsko računovodstvo" data-testid={`result-subject-${i}`} />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Broj desetki</label>
-                  <input type="number" className={inputCls} value={r.tens ?? 0} onChange={(e) => setRow(i, "tens", Number(e.target.value))} data-testid={`result-tens-${i}`} />
-                </div>
-                <div className="flex gap-2 items-end">
-                  <div className="flex-1">
-                    <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Ukupno položenih</label>
-                    <input type="number" className={inputCls} value={r.passed ?? 0} onChange={(e) => setRow(i, "passed", Number(e.target.value))} data-testid={`result-passed-${i}`} />
+      {groups.map((g) => (
+        <div key={g} className={card} data-testid={`video-group-${g}`}>
+          <h4 className="font-head font-semibold text-[#0A1F44] flex items-center gap-2">
+            <Video className="w-4 h-4 text-[#4A90D9]" /> {g}
+          </h4>
+          <div className="mt-4 space-y-3">
+            {videos
+              .filter((v) => (v.package || "Bez predmeta") === g)
+              .map((v) => (
+                <div key={v.id} className="flex flex-col sm:flex-row sm:items-center gap-3" data-testid={`video-row-${v.id}`}>
+                  <div className="sm:w-1/3 text-sm text-[#0A1F44] font-medium">{v.title}</div>
+                  <input
+                    className={`${inputCls} flex-1`}
+                    placeholder="Nalepi link lekcije (https://...)"
+                    value={urls[v.id] ?? ""}
+                    onChange={(e) => setUrls({ ...urls, [v.id]: e.target.value })}
+                    data-testid={`video-url-${v.id}`}
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      className={v.is_free ? btnGold : btnGhost}
+                      onClick={async () => {
+                        await adminApi.post(`/admin/videos/${v.id}/free`);
+                        toast.success(v.is_free ? "Lekcija više nije besplatna." : "Lekcija je označena kao besplatna.");
+                        load();
+                      }}
+                      data-testid={`video-free-${v.id}`}
+                    >
+                      <Gift className="w-4 h-4" /> {v.is_free ? "Besplatna" : "Označi besplatnu"}
+                    </button>
+                    {urls[v.id] && (
+                      <a className={btnGhost} href={urls[v.id]} target="_blank" rel="noopener noreferrer" data-testid={`video-test-${v.id}`}>
+                        <ExternalLink className="w-4 h-4" /> Proveri
+                      </a>
+                    )}
+                    <button className={`${btnGhost} !text-[#B91C1C]`} onClick={() => remove(v.id)} data-testid={`video-delete-${v.id}`}>
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button
-                    className={`${btnGhost} !text-[#B91C1C]`}
-                    onClick={() => setDraft({ ...draft, results: rows.filter((_, k) => k !== i) })}
-                    data-testid={`result-remove-${i}`}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))}
+          </div>
         </div>
+      ))}
 
-        <div className="mt-5 flex flex-wrap gap-3">
-          <button
-            className={btnGhost}
-            onClick={() => setDraft({ ...draft, results: [{ rok: "", subject: "", tens: 0, passed: 0 }, ...rows] })}
-            data-testid="result-add"
-          >
-            <Plus className="w-4 h-4" /> Dodaj novi rok
-          </button>
-          <button className={btnGold} onClick={() => saveSettings(draft)} data-testid="save-results">
-            <Save className="w-4 h-4" /> Sačuvaj rezultate
-          </button>
+      <div className={card}>
+        <h3 className="font-head text-lg font-semibold text-[#0A1F44]">Dodaj više lekcija odjednom</h3>
+        <p className="text-sm text-[#475569] mt-1">
+          Jedna lekcija po redu. Ako imaš link, napiši ga posle znaka <b>|</b> — primer:
+          <br />
+          <code className="text-xs">Amortizacija osnovnih sredstava | https://youtu.be/xxxxxxxxxxx</code>
+        </p>
+        <div className="mt-4 space-y-3">
+          <input
+            className={inputCls}
+            placeholder="Predmet / paket (npr. Finansijsko računovodstvo)"
+            value={bulk.package}
+            onChange={(e) => setBulk({ ...bulk, package: e.target.value })}
+            data-testid="video-bulk-package"
+          />
+          <textarea
+            className={`${inputCls} min-h-[140px]`}
+            placeholder={"Naziv lekcije | link\nNaziv lekcije | link"}
+            value={bulk.lines}
+            onChange={(e) => setBulk({ ...bulk, lines: e.target.value })}
+            data-testid="video-bulk-lines"
+          />
         </div>
+        <button className={`${btnPrimary} mt-4`} onClick={bulkCreate} data-testid="video-bulk-create">
+          <Plus className="w-4 h-4" /> Dodaj lekcije
+        </button>
       </div>
     </div>
   );
@@ -895,21 +966,7 @@ export default function Admin() {
 
         {tab === "slike" && <SlikeTab settings={settings} saveSettings={saveSettings} />}
         {tab === "dokumenti" && <DokumentiTab />}
-        {tab === "video" && (
-          <ListTab
-            endpoint="videos"
-            publicPath="/videos"
-            titleKey="title"
-            label="video lekciju"
-            emptyItem={{ title: "", url: "", package: "", order: 0 }}
-            fields={[
-              { key: "title", label: "Naziv lekcije" },
-              { key: "url", label: "Link (YouTube / Drive)" },
-              { key: "package", label: "Paket / predmet" },
-              { key: "order", label: "Redosled", type: "number" },
-            ]}
-          />
-        )}
+        {tab === "video" && <VideoTab />}
         {tab === "paketi" && (
           <ListTab
             endpoint="packages"
@@ -927,8 +984,7 @@ export default function Admin() {
             ]}
           />
         )}
-        {tab === "termini" && <TerminiTab />}
-        {tab === "rezultati" && <RezultatiTab settings={settings} saveSettings={saveSettings} />}        {tab === "utisci" && (
+        {tab === "termini" && <TerminiTab />}        {tab === "utisci" && (
           <ListTab
             endpoint="testimonials"
             publicPath="/testimonials"

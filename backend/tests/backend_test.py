@@ -68,8 +68,57 @@ class TestPublicGets:
         r = s.get(f"{API}/slots", params={"week_start": date.today().isoformat()})
         assert r.status_code == 200
         d = r.json()
-        assert len(d["week"]) == 7
-        assert len(d["slots"]) == 7 * len(d["hours"])
+        # Mon-Sat only, no Sunday
+        assert len(d["week"]) == 6, f"expected 6 days, got {len(d['week'])}"
+        weekdays = [date.fromisoformat(x).weekday() for x in d["week"]]
+        assert weekdays == [0, 1, 2, 3, 4, 5]
+        # 14:00-19:00 hourly = 6 hours
+        assert d["hours"] == ["14:00", "15:00", "16:00", "17:00", "18:00", "19:00"]
+        assert len(d["slots"]) == 6 * 6 == 36
+
+    def test_videos_seed_free_and_count(self, s):
+        r = s.get(f"{API}/videos")
+        assert r.status_code == 200
+        vids = r.json()
+        assert len(vids) == 40, f"expected 40 seeded lessons, got {len(vids)}"
+        assert all(v.get("package") for v in vids), "all videos should have package"
+        free = [v for v in vids if v.get("is_free")]
+        titles = {v["title"] for v in free}
+        assert titles == {
+            "Kontni okvir i logika knjiženja",
+            "Uvod u upravljačko računovodstvo",
+            "Prag rentabilnosti (break-even)",
+        }, f"unexpected free titles: {titles}"
+
+
+# ---- Free-video admin toggle & bulk urls ----
+class TestVideoFreeAndBulk:
+    def test_toggle_free_and_bulk_url(self, s, admin_headers):
+        vids = s.get(f"{API}/videos").json()
+        # pick a non-free lesson
+        target = next(v for v in vids if not v.get("is_free"))
+        vid = target["id"]
+        # toggle to free
+        r = s.post(f"{API}/admin/videos/{vid}/free", headers=admin_headers)
+        assert r.status_code == 200
+        assert r.json()["is_free"] is True
+        # toggle back
+        r = s.post(f"{API}/admin/videos/{vid}/free", headers=admin_headers)
+        assert r.status_code == 200
+        assert r.json()["is_free"] is False
+
+        # bulk url update
+        test_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        r = s.post(f"{API}/admin/videos/bulk-urls",
+                   json={"items": [{"id": vid, "url": test_url}]}, headers=admin_headers)
+        assert r.status_code == 200 and r.json()["updated"] == 1
+        # verify persisted
+        vids2 = s.get(f"{API}/videos").json()
+        got = next(v for v in vids2 if v["id"] == vid)
+        assert got["url"] == test_url
+        # cleanup - clear
+        s.post(f"{API}/admin/videos/bulk-urls",
+               json={"items": [{"id": vid, "url": ""}]}, headers=admin_headers)
 
 
 # ---- Consultations, Contact ----

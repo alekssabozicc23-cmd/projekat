@@ -26,20 +26,19 @@ export const Testimonials = ({ testimonials, gallery }) => {
           />
         </Reveal>
 
-        <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <Reveal className="lg:col-span-7">
             <div
               data-testid="testimonial-active"
               className="h-full rounded-3xl bg-white border border-[#E2E8F0] shadow-lg p-7 sm:p-10 flex flex-col"
             >
               <Quote className="w-9 h-9 text-[#D4AF37]" />
-              <p className="mt-6 font-head text-lg sm:text-2xl text-[#0A1F44] leading-relaxed flex-1">
+              <p className="mt-6 font-head text-lg sm:text-2xl text-[#0A1F44] leading-relaxed">
                 „{active.text}”
               </p>
-              <div className="mt-8 flex items-center justify-between gap-4 flex-wrap">
+              <div className="mt-7 flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                  <div className="font-semibold text-[#1B3A6B]">{active.name}</div>
-                  <div className="text-xs text-[#475569] mt-0.5">
+                  <div className="text-xs text-[#475569]">
                     {active.school}
                     {active.subject ? ` · ${active.subject}` : ""}
                   </div>
@@ -115,8 +114,10 @@ export const Testimonials = ({ testimonials, gallery }) => {
                   ))}
                 </div>
                 <p className="text-sm text-[#475569] leading-relaxed line-clamp-3">„{t.text}”</p>
-                <div className="mt-4 text-xs font-semibold text-[#1B3A6B]">{t.name}</div>
-                <div className="text-[11px] text-[#94A3B8]">{t.school}</div>
+                <div className="mt-4 text-[11px] text-[#94A3B8]">
+                  {t.school}
+                  {t.subject ? ` · ${t.subject}` : ""}
+                </div>
               </div>
             </Reveal>
           ))}

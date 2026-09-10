@@ -86,8 +86,16 @@ html {
     transform: none;
 }
 
-.grain::before {
-    content: "";
+@keyframes heroZoom {
+    from {
+        transform: scale(1.12);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.grain::before {    content: "";
     position: absolute;
     inset: 0;
     pointer-events: none;

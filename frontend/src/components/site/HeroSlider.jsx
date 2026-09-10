@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Award, Users, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Award, Users, Star, Sparkles } from "lucide-react";
 import { useCountUp } from "./Reveal";
 
 const StatCard = ({ icon: Icon, target, suffix, label, delay }) => {
@@ -10,14 +10,16 @@ const StatCard = ({ icon: Icon, target, suffix, label, delay }) => {
   }, [delay]);
   const value = useCountUp(target, run);
   return (
-    <div className="flex items-start gap-4 px-5 py-5 sm:px-6 sm:py-6 border-l border-white/10 first:border-l-0">
-      <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#D4AF37] shrink-0 mt-1" />
+    <div className="flex items-start gap-4 rounded-2xl bg-white border border-[#E7EDF6] px-6 py-6 shadow-[0_14px_40px_-26px_rgba(10,31,68,0.45)] transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_22px_50px_-24px_rgba(10,31,68,0.4)]">
+      <span className="grid place-items-center w-11 h-11 rounded-xl bg-[#EEF3FA] shrink-0">
+        <Icon className="w-5 h-5 text-[#2E5CA8]" />
+      </span>
       <div>
-        <div className="font-head text-2xl sm:text-3xl font-bold text-white tabular-nums">
+        <div className="font-head text-3xl sm:text-4xl font-bold text-[#0A1F44] tabular-nums leading-none">
           {value.toLocaleString("sr-RS")}
           {suffix}
         </div>
-        <div className="text-xs sm:text-sm text-white/60 mt-1 leading-snug">{label}</div>
+        <div className="text-xs sm:text-sm text-[#64748B] mt-2 leading-snug">{label}</div>
       </div>
     </div>
   );
@@ -37,108 +39,123 @@ export const HeroSlider = ({ settings }) => {
   const active = slides[idx] || {};
 
   return (
-    <section id="top" data-testid="hero-section" className="relative bg-[#0A1F44] overflow-hidden grain">
-      <div className="absolute inset-0">
+    <>
+      <section
+        id="top"
+        data-testid="hero-section"
+        className="relative w-full h-[88vh] min-h-[560px] max-h-[900px] overflow-hidden bg-[#0A1F44]"
+      >
         {slides.map((s, i) => (
           <div
             key={i}
             className="absolute inset-0 transition-opacity ease-out"
-            style={{ transitionDuration: "1200ms", opacity: i === idx ? 1 : 0 }}
+            style={{ transitionDuration: "1400ms", opacity: i === idx ? 1 : 0 }}
           >
             <img
               src={s.image}
               alt={s.title || "Andri-Tim"}
-              className="w-full h-full object-cover object-center"
               loading={i === 0 ? "eager" : "lazy"}
+              className="w-full h-full object-cover object-[center_22%] scale-105"
+              style={{ animation: i === idx ? "heroZoom 9s ease-out forwards" : "none" }}
             />
           </div>
         ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1F44] via-[#0A1F44]/90 to-[#0A1F44]/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A1F44] via-transparent to-[#0A1F44]/60" />
-      </div>
 
-      <div className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-36 pb-16 sm:pt-44 sm:pb-24">
-        <div className="max-w-2xl">
-          <span
-            key={`badge-${idx}`}
-            data-testid="hero-badge"
-            className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-4 py-1.5 text-xs sm:text-sm text-[#D4AF37] font-medium tracking-wide"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
-            {active.badge}
-          </span>
-          <h1
-            key={`title-${idx}`}
-            data-testid="hero-title"
-            className="font-head text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mt-6"
-          >
-            {active.title}
-          </h1>
-          <p key={`sub-${idx}`} data-testid="hero-subtitle" className="mt-6 text-sm md:text-lg text-white/75 leading-relaxed max-w-xl">
-            {active.subtitle}
-          </p>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1F44]/88 via-[#0A1F44]/62 to-[#1B3A6B]/38" />
+        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#0A1F44]/85 to-transparent" />
 
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <a
-              href="#studenti"
-              data-testid="hero-packages-btn"
-              className="inline-flex items-center justify-center rounded-full bg-[#D4AF37] hover:bg-[#C59B27] text-[#0A1F44] font-semibold px-7 py-3.5 text-sm sm:text-base shadow-lg shadow-[#D4AF37]/20 transition-all duration-300 hover:-translate-y-0.5"
+        <div className="relative h-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col justify-center pt-24 pb-28">
+          <div className="max-w-3xl">
+            <span
+              data-testid="hero-badge"
+              className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/45 bg-[#0A1F44]/40 backdrop-blur-sm px-4 py-1.5 text-xs sm:text-sm text-[#E9CF7C] font-semibold tracking-wide"
             >
-              Pogledaj pakete
-            </a>
-            <a
-              href="#konsultacije"
-              data-testid="hero-consult-btn"
-              className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 hover:bg-white/15 text-white font-medium px-7 py-3.5 text-sm sm:text-base backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5"
+              <Sparkles className="w-3.5 h-3.5" />
+              {active.badge}
+            </span>
+
+            <h1
+              key={`title-${idx}`}
+              data-testid="hero-title"
+              className="font-head text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.06] tracking-tight mt-6 drop-shadow-[0_4px_24px_rgba(10,31,68,0.55)]"
             >
-              Zakaži konsultacije
-            </a>
+              {active.title}
+            </h1>
+            <p
+              key={`sub-${idx}`}
+              data-testid="hero-subtitle"
+              className="mt-6 text-sm md:text-lg text-white/85 leading-relaxed max-w-xl"
+            >
+              {active.subtitle}
+            </p>
+
+            <div className="mt-9 flex flex-wrap items-center gap-4">
+              <a
+                href="#studenti"
+                data-testid="hero-packages-btn"
+                className="inline-flex items-center justify-center rounded-full bg-[#D4AF37] hover:bg-[#C59B27] text-[#0A1F44] font-semibold px-7 py-3.5 text-sm sm:text-base shadow-xl shadow-[#0A1F44]/30 transition-all duration-300 hover:-translate-y-0.5"
+              >
+                Pogledaj pakete
+              </a>
+              <a
+                href="#konsultacije"
+                data-testid="hero-consult-btn"
+                className="inline-flex items-center justify-center rounded-full border border-white/35 bg-white/10 hover:bg-white/20 text-white font-medium px-7 py-3.5 text-sm sm:text-base backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5"
+              >
+                Zakaži konsultacije
+              </a>
+            </div>
           </div>
-        </div>
-
-        <div
-          data-testid="hero-stats"
-          className="mt-14 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-md divide-y sm:divide-y-0 divide-white/10 max-w-3xl"
-        >
-          <StatCard icon={Award} target={17} suffix="+" label="godina iskustva u pripremi" delay={300} />
-          <StatCard icon={Users} target={3000} suffix="+" label="pripremljenih učenika" delay={500} />
-          <StatCard icon={Star} target={31} suffix="" label="desetki na kolokvijumu 2024." delay={700} />
         </div>
 
         {slides.length > 1 && (
-          <div className="mt-10 flex items-center gap-4">
-            <button
-              onClick={() => go(-1)}
-              data-testid="hero-prev"
-              aria-label="Prethodna slika"
-              className="grid place-items-center w-11 h-11 rounded-full border border-white/20 text-white hover:bg-white/10 transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => go(1)}
-              data-testid="hero-next"
-              aria-label="Sledeća slika"
-              className="grid place-items-center w-11 h-11 rounded-full border border-white/20 text-white hover:bg-white/10 transition-colors"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-            <div className="flex items-center gap-2 ml-2">
-              {slides.map((_, i) => (
+          <div className="absolute bottom-8 inset-x-0 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setIdx(i)}
+                    data-testid={`hero-dot-${i}`}
+                    aria-label={`Slika ${i + 1}`}
+                    className={`h-1.5 rounded-full transition-all duration-500 ${
+                      i === idx ? "w-12 bg-[#D4AF37]" : "w-5 bg-white/45 hover:bg-white/80"
+                    }`}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2.5">
                 <button
-                  key={i}
-                  onClick={() => setIdx(i)}
-                  data-testid={`hero-dot-${i}`}
-                  aria-label={`Slika ${i + 1}`}
-                  className={`h-1.5 rounded-full transition-all duration-500 ${
-                    i === idx ? "w-10 bg-[#D4AF37]" : "w-4 bg-white/30 hover:bg-white/60"
-                  }`}
-                />
-              ))}
+                  onClick={() => go(-1)}
+                  data-testid="hero-prev"
+                  aria-label="Prethodna slika"
+                  className="grid place-items-center w-11 h-11 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => go(1)}
+                  data-testid="hero-next"
+                  aria-label="Sledeća slika"
+                  className="grid place-items-center w-11 h-11 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
         )}
-      </div>
-    </section>
+      </section>
+
+      <section className="relative bg-gradient-to-b from-[#F6F9FD] to-white py-12 sm:py-16">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div data-testid="hero-stats" className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 -mt-20 sm:-mt-24 relative z-10">
+            <StatCard icon={Award} target={17} suffix="+" label="godina iskustva u pripremi učenika" delay={400} />
+            <StatCard icon={Users} target={3000} suffix="+" label="pripremljenih učenika i položenih ispita" delay={650} />
+            <StatCard icon={Star} target={31} suffix="" label="učenika sa ocenom 10 na I kolokvijumu 2024." delay={900} />
+          </div>
+        </div>
+      </section>
+    </>
   );
 };

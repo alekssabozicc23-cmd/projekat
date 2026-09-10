@@ -119,6 +119,21 @@ class VideoIn(BaseModel):
     url: str
     package: Optional[str] = ""
     order: int = 0
+    is_free: bool = False
+
+
+class VideoUrlItem(BaseModel):
+    id: str
+    url: str
+
+
+class VideoBulkUrls(BaseModel):
+    items: List[VideoUrlItem]
+
+
+class VideoBulkCreate(BaseModel):
+    package: str = ""
+    lines: str
 
 
 class SlotAction(BaseModel):
@@ -171,7 +186,7 @@ DEFAULT_SETTINGS = {
     ],
     "gallery_title": "Galerija — časovi, sertifikati i materijali",
     "gallery_note": "Sve slike sa sajta na jednom mestu. Klikni na sliku za veći prikaz.",
-    "slot_hours": ["12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"],
+    "slot_hours": ["14:00", "15:00", "16:00", "17:00", "18:00", "19:00"],
     "results_title": "Rezultati sa poslednjih rokova",
     "results_note": "Brojevi se ažuriraju posle svakog roka — ovo su ocene mojih učenika.",
     "results": [
@@ -232,8 +247,8 @@ DEFAULT_FAQ = [
      "u PDF/video formatu, uz jasan plan učenja."),
     ("Koliko traje priprema?", "Za kolokvijum je najčešće dovoljno 2–3 nedelje sistematičnog rada, a za ceo ispit "
      "4–6 nedelja. Sve zavisi od tvog tempa i roka."),
-    ("Kako se zakazuju časovi za srednjoškolce?", "Kroz kalendar na sajtu — izaberi slobodan termin (12h–19h, radnim "
-     "danima i vikendom), pošalji zahtev i dobijaš potvrdu."),
+    ("Kako se zakazuju časovi za srednjoškolce?", "Kroz kalendar na sajtu — izaberi slobodan termin (14h–19h, radnim "
+     "danima i subotom), pošalji zahtev i dobijaš potvrdu."),
     ("Da li dobijam sertifikat?", "Da, uz pakete za ispit dobijaš sertifikat Andri-Tim edukacionog centra o završenoj "
      "pripremnoj nastavi."),
 ]
@@ -250,6 +265,80 @@ DEFAULT_TESTIMONIALS = [
     ("Nemanja Radović", "Ekonomska škola, Niš", "Osnovi ekonomije — 5", 5,
      "Časovi su mi vratili samopouzdanje. Konačno razumem šta radim, a ne učim napamet."),
 ]
+
+
+DEFAULT_VIDEOS = [
+    ("Finansijsko računovodstvo", [
+        "Kontni okvir i logika knjiženja",
+        "Dvojno knjigovodstvo — osnovna pravila",
+        "Bilans stanja: aktiva i pasiva",
+        "Bilans uspeha: prihodi i rashodi",
+        "Nabavka i prodaja robe",
+        "Zalihe materijala i obračun troškova",
+        "Osnovna sredstva i amortizacija",
+        "Potraživanja i obaveze",
+        "Obračun PDV-a u knjiženjima",
+        "Zarade i doprinosi",
+        "Kapital i rezerve",
+        "Zaključna knjiženja i utvrđivanje rezultata",
+        "Primer kolokvijumskog zadatka — korak po korak",
+        "Simulacija ispita: kompletan zadatak",
+    ]),
+    ("Upravljačko računovodstvo — prvi deo", [
+        "Uvod u upravljačko računovodstvo",
+        "Vrste i ponašanje troškova",
+        "Podela troškova po mestima i nosiocima",
+        "Obračun po stvarnim troškovima",
+        "Obračun po planskim troškovima",
+        "Kalkulacija cene koštanja",
+        "Metod dodatne kalkulacije",
+        "Metod deobne kalkulacije",
+        "Analiza odstupanja troškova",
+        "Praktikum I — rešeni zadaci",
+        "Priprema za prvi kolokvijum",
+    ]),
+    ("Upravljačko računovodstvo — drugi deo", [
+        "Sistem obračuna po varijabilnim troškovima",
+        "Prag rentabilnosti (break-even)",
+        "CVP analiza — primeri",
+        "Marža pokrića i odlučivanje",
+        "Planiranje i budžetiranje",
+        "Master budžet — izrada",
+        "Budžet gotovine",
+        "Standardni troškovi i odstupanja",
+        "Interne transferne cene",
+        "Kratkoročne poslovne odluke",
+        "Praktikum II — rešeni zadaci",
+        "Priprema za drugi kolokvijum",
+    ]),
+    ("Usmeni deo ispita", [
+        "Najčešća pitanja sa usmenog — finansijsko",
+        "Najčešća pitanja sa usmenog — upravljačko",
+        "Kako odgovoriti na teorijsko pitanje",
+    ]),
+]
+
+
+FREE_VIDEO_TITLES = {
+    "Kontni okvir i logika knjiženja",
+    "Uvod u upravljačko računovodstvo",
+    "Prag rentabilnosti (break-even)",
+}
+
+
+async def seed_videos():
+    existing_titles = {v["title"] async for v in db.videos.find({}, {"_id": 0, "title": 1})}
+    docs = []
+    order = 0
+    for group, titles in DEFAULT_VIDEOS:
+        for t in titles:
+            if t not in existing_titles:
+                docs.append({"id": str(uuid.uuid4()), "title": t, "url": "", "package": group,
+                             "is_free": t in FREE_VIDEO_TITLES, "order": order, "created_at": now_iso()})
+            order += 1
+    if docs:
+        await db.videos.insert_many(docs)
+        logger.info(f"Seed: {len(docs)} video lekcija")
 
 
 async def seed():
@@ -280,9 +369,10 @@ async def seed():
             for i, (n, s, sub, r, t) in enumerate(DEFAULT_TESTIMONIALS)])
     if await db.videos.count_documents({}) == 0:
         await db.videos.insert_many([
-            {"id": str(uuid.uuid4()), "title": "Uvod u dvojno knjigovodstvo", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            {"id": str(uuid.uuid4()), "title": "Uvod u dvojno knjigovodstvo", "url": "",
              "package": "Finansijsko računovodstvo", "order": 0, "created_at": now_iso()},
         ])
+    await seed_videos()
     await seed_documents()
 
 
@@ -398,7 +488,7 @@ async def document_preview(doc_id: str):
 def week_dates(start: str) -> List[str]:
     d = date.fromisoformat(start)
     d = d - timedelta(days=d.weekday())
-    return [(d + timedelta(days=i)).isoformat() for i in range(7)]
+    return [(d + timedelta(days=i)).isoformat() for i in range(6)]
 
 
 @api.get("/slots")
@@ -654,6 +744,43 @@ async def feature_package(pkg_id: str, x_admin_token: Optional[str] = Header(Non
     await db.packages.update_one({"id": pkg_id}, {"$set": {
         "featured": new_val, "badge": "Paket meseca" if new_val else None}})
     return await db.packages.find_one({"id": pkg_id}, NO_ID)
+
+
+@api.post("/admin/videos/{video_id}/free")
+async def toggle_free_video(video_id: str, x_admin_token: Optional[str] = Header(None)):
+    require_admin(x_admin_token)
+    v = await db.videos.find_one({"id": video_id})
+    if not v:
+        raise HTTPException(status_code=404, detail="Lekcija nije nađena")
+    await db.videos.update_one({"id": video_id}, {"$set": {"is_free": not v.get("is_free", False)}})
+    return await db.videos.find_one({"id": video_id}, NO_ID)
+
+
+@api.post("/admin/videos/bulk-urls")
+async def bulk_video_urls(payload: VideoBulkUrls, x_admin_token: Optional[str] = Header(None)):
+    require_admin(x_admin_token)
+    for item in payload.items:
+        await db.videos.update_one({"id": item.id}, {"$set": {"url": item.url.strip()}})
+    return {"updated": len(payload.items)}
+
+
+@api.post("/admin/videos/bulk-create")
+async def bulk_create_videos(payload: VideoBulkCreate, x_admin_token: Optional[str] = Header(None)):
+    require_admin(x_admin_token)
+    start = await db.videos.count_documents({})
+    docs = []
+    for i, raw in enumerate(payload.lines.splitlines()):
+        line = raw.strip()
+        if not line:
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        title = parts[0]
+        url = parts[1] if len(parts) > 1 else ""
+        docs.append({"id": str(uuid.uuid4()), "title": title, "url": url,
+                     "package": payload.package, "order": start + i, "created_at": now_iso()})
+    if docs:
+        await db.videos.insert_many(docs)
+    return {"created": len(docs)}
 
 
 @api.get("/admin/bookings")

@@ -4,7 +4,6 @@ import { Header } from "../components/site/Header";
 import { HeroSlider } from "../components/site/HeroSlider";
 import { About } from "../components/site/About";
 import { Packages } from "../components/site/Packages";
-import { Results } from "../components/site/Results";
 import { Consultation } from "../components/site/Consultation";
 import { Highschool } from "../components/site/Highschool";
 import { Materials } from "../components/site/Materials";
@@ -65,8 +64,8 @@ export default function Home() {
     <div className="bg-white">
       <Header settings={settings} />
       <HeroSlider settings={settings} />
+      <Testimonials testimonials={testimonials} gallery={settings.gallery} />
       <About settings={settings} />
-      <Results settings={settings} />
       <Packages packages={packages} settings={settings} onOrder={onOrder} />
       <div ref={consultRef}>
         <Consultation packages={packages} prefill={prefill} onPrefillUsed={() => setPrefill("")} />
@@ -76,7 +75,6 @@ export default function Home() {
       <Videos videos={videos} onOrder={onOrder} />
       <Gallery settings={settings} />
       <FreeMaterial freeDoc={freeDoc} />
-      <Testimonials testimonials={testimonials} gallery={settings.gallery} />
       <Faq faq={faq} />
       <Contact settings={settings} />
     </div>
