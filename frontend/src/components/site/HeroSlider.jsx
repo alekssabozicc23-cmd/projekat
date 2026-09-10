@@ -55,15 +55,15 @@ export const HeroSlider = ({ settings }) => {
               src={s.image}
               alt={s.title || "Andri-Tim"}
               loading={i === 0 ? "eager" : "lazy"}
-              className="w-full h-full object-cover object-[center_30%] scale-105 blur-[3px]"
+              className="w-full h-full object-cover object-[center_30%] scale-105"
               style={{ animation: i === idx ? "heroZoom 9s ease-out forwards" : "none" }}
             />
           </div>
         ))}
 
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1F44]/82 via-[#1B3A6B]/58 to-[#2E5CA8]/32" />
-        <div className="absolute inset-0 bg-[#1B3A6B]/18" />
-        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#0A1F44]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1F44]/92 via-[#0A1F44]/78 to-[#1B3A6B]/58" />
+        <div className="absolute inset-0 bg-[#0A1F44]/28" />
+        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#0A1F44]/85 to-transparent" />
 
         <div className="relative h-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col justify-center pt-24 pb-28">
           <div className="max-w-3xl">
