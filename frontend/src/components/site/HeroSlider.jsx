@@ -61,8 +61,8 @@ export const HeroSlider = ({ settings }) => {
           </div>
         ))}
 
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1F44]/92 via-[#0A1F44]/78 to-[#1B3A6B]/58" />
-        <div className="absolute inset-0 bg-[#0A1F44]/28" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1F44]/96 via-[#0A1F44]/86 to-[#1B3A6B]/68" />
+        <div className="absolute inset-0 bg-[#0A1F44]/38" />
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#0A1F44]/85 to-transparent" />
 
         <div className="relative h-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col justify-center pt-24 pb-28">
