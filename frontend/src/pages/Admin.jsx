@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Lock, LogOut, Image as ImageIcon, FileText, Video, Package, CalendarDays,
-  MessageSquareQuote, HelpCircle, Phone, Users, Trash2, Plus, Crown, Save, Upload, ExternalLink, Gift,
+  MessageSquareQuote, HelpCircle, Phone, Users, Trash2, Plus, Crown, Save, Upload, ExternalLink, Gift, Pencil,
 } from "lucide-react";
 import { api, adminApi, fileUrl, setToken, getToken, clearToken } from "../lib/api";
 
@@ -208,8 +208,13 @@ const DokumentiTab = () => {
   };
 
   const update = async (id, patch) => {
-    await adminApi.put(`/admin/documents/${id}`, patch);
-    load();
+    try {
+      await adminApi.put(`/admin/documents/${id}`, patch);
+      toast.success("Izmene su sačuvane.");
+      load();
+    } catch {
+      toast.error("Čuvanje nije uspelo.");
+    }
   };
 
   const remove = async (id) => {
@@ -247,37 +252,88 @@ const DokumentiTab = () => {
 
       <div className="space-y-4">
         {docs.map((d) => (
-          <div key={d.id} className={card} data-testid={`admin-doc-${d.id}`}>
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="min-w-0">
-                <div className="font-head font-semibold text-[#0A1F44]">{d.title}</div>
-                <div className="text-xs text-[#94A3B8] mt-1">
-                  {d.category} · {d.group || "—"} · {d.price || "bez cene"} · {d.is_active ? "aktivan" : "sakriven"}
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <a className={btnGhost} href={fileUrl(`/api/files/${d.storage_path}`)} target="_blank" rel="noopener noreferrer" data-testid={`doc-open-${d.id}`}>
-                  <ExternalLink className="w-4 h-4" /> Otvori
-                </a>
-                <button className={btnGhost} onClick={() => update(d.id, { is_active: !d.is_active })} data-testid={`doc-toggle-${d.id}`}>
-                  {d.is_active ? "Sakrij" : "Prikaži"}
-                </button>
-                <label className={`${btnGhost} cursor-pointer`} data-testid={`doc-replace-${d.id}`}>
-                  <Upload className="w-4 h-4" /> Zameni PDF
-                  <input type="file" accept="application/pdf" className="hidden" onChange={(e) => e.target.files?.[0] && replace(d.id, "full", e.target.files[0])} />
-                </label>
-                <label className={`${btnGhost} cursor-pointer`} data-testid={`doc-replace-preview-${d.id}`}>
-                  <Upload className="w-4 h-4" /> Zameni preview
-                  <input type="file" accept="application/pdf" className="hidden" onChange={(e) => e.target.files?.[0] && replace(d.id, "preview", e.target.files[0])} />
-                </label>
-                <button className={`${btnGhost} !text-[#B91C1C]`} onClick={() => remove(d.id)} data-testid={`doc-delete-${d.id}`}>
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
+          <DocRow key={d.id} doc={d} onUpdate={update} onReplace={replace} onRemove={remove} />
         ))}
       </div>
+    </div>
+  );
+};
+
+const DocRow = ({ doc, onUpdate, onReplace, onRemove }) => {
+  const [edit, setEdit] = useState(false);
+  const [local, setLocal] = useState(doc);
+  useEffect(() => setLocal(doc), [doc]);
+
+  return (
+    <div className={card} data-testid={`admin-doc-${doc.id}`}>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="font-head font-semibold text-[#0A1F44]">{doc.title}</div>
+          <div className="text-xs text-[#94A3B8] mt-1">
+            {doc.category} · {doc.group || "—"} · {doc.price || "bez cene"} · {doc.is_active ? "aktivan" : "sakriven"}
+            {doc.preview_path ? " · ima preview" : " · bez preview-a"}
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button className={edit ? btnPrimary : btnGhost} onClick={() => setEdit((v) => !v)} data-testid={`doc-edit-${doc.id}`}>
+            <Pencil className="w-4 h-4" /> {edit ? "Zatvori" : "Izmeni"}
+          </button>
+          <a className={btnGhost} href={fileUrl(`/api/files/${doc.storage_path}`)} target="_blank" rel="noopener noreferrer" data-testid={`doc-open-${doc.id}`}>
+            <ExternalLink className="w-4 h-4" /> Otvori
+          </a>
+          <button className={btnGhost} onClick={() => onUpdate(doc.id, { is_active: !doc.is_active })} data-testid={`doc-toggle-${doc.id}`}>
+            {doc.is_active ? "Sakrij" : "Prikaži"}
+          </button>
+          <button className={`${btnGhost} !text-[#B91C1C]`} onClick={() => onRemove(doc.id)} data-testid={`doc-delete-${doc.id}`}>
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {edit && (
+        <div className="mt-5 pt-5 border-t border-[#E2E8F0]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Naziv</label>
+              <input className={inputCls} value={local.title || ""} onChange={(e) => setLocal({ ...local, title: e.target.value })} data-testid={`doc-edit-title-${doc.id}`} />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Gde se prikazuje</label>
+              <select className={inputCls} value={local.category || "skripta"} onChange={(e) => setLocal({ ...local, category: e.target.value })} data-testid={`doc-edit-category-${doc.id}`}>
+                <option value="skripta">Skripta (sekcija Materijali, sa preview-om)</option>
+                <option value="free">Besplatan materijal za preuzimanje</option>
+                <option value="praktikum">Praktikum / rešenja (interno)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Predmet / grupa</label>
+              <input className={inputCls} value={local.group || ""} onChange={(e) => setLocal({ ...local, group: e.target.value })} data-testid={`doc-edit-group-${doc.id}`} />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[#0A1F44] mb-1.5">Cena</label>
+              <input className={inputCls} value={local.price || ""} onChange={(e) => setLocal({ ...local, price: e.target.value })} data-testid={`doc-edit-price-${doc.id}`} />
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              className={btnGold}
+              onClick={() => onUpdate(doc.id, { title: local.title, category: local.category, group: local.group, price: local.price })}
+              data-testid={`doc-save-${doc.id}`}
+            >
+              <Save className="w-4 h-4" /> Sačuvaj izmene
+            </button>
+            <label className={`${btnGhost} cursor-pointer`} data-testid={`doc-replace-${doc.id}`}>
+              <Upload className="w-4 h-4" /> Zameni pun PDF
+              <input type="file" accept="application/pdf" className="hidden" onChange={(e) => e.target.files?.[0] && onReplace(doc.id, "full", e.target.files[0])} />
+            </label>
+            <label className={`${btnGhost} cursor-pointer`} data-testid={`doc-replace-preview-${doc.id}`}>
+              <Upload className="w-4 h-4" /> Zameni preview (5 strana)
+              <input type="file" accept="application/pdf" className="hidden" onChange={(e) => e.target.files?.[0] && onReplace(doc.id, "preview", e.target.files[0])} />
+            </label>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

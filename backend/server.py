@@ -352,13 +352,16 @@ async def seed():
             missing["instagram_handle"] = DEFAULT_SETTINGS["instagram_handle"]
         if missing:
             await db.settings.update_one({"id": "site"}, {"$set": missing})
-    if await db.packages.count_documents({}) == 0:
-        docs = []
-        for p in DEFAULT_PACKAGES:
-            docs.append({"id": str(uuid.uuid4()), "category": "student", "featured": p.get("featured", False),
-                         "badge": p.get("badge"), "note": p.get("note", ""), "document_id": None,
-                         "group": p["group"], "name": p["name"], "price": p["price"],
-                         "features": p["features"], "order": p["order"], "created_at": now_iso()})
+    existing_pkgs = {p["name"] async for p in db.packages.find({}, {"_id": 0, "name": 1})}
+    docs = []
+    for p in DEFAULT_PACKAGES:
+        if p["name"] in existing_pkgs:
+            continue
+        docs.append({"id": str(uuid.uuid4()), "category": "student", "featured": p.get("featured", False),
+                     "badge": p.get("badge"), "note": p.get("note", ""), "document_id": None,
+                     "group": p["group"], "name": p["name"], "price": p["price"],
+                     "features": p["features"], "order": p["order"], "created_at": now_iso()})
+    if docs:
         await db.packages.insert_many(docs)
     if await db.faq.count_documents({}) == 0:
         await db.faq.insert_many([{"id": str(uuid.uuid4()), "question": q, "answer": a, "order": i}
