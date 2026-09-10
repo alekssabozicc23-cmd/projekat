@@ -50,7 +50,7 @@ export default function Home() {
     document.getElementById("konsultacije")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const freeDoc = documents.find((d) => d.category === "free" && d.is_active);
+  const freeDocs = documents.filter((d) => d.category === "free" && d.is_active);
 
   if (!settings) {
     return (
@@ -74,7 +74,7 @@ export default function Home() {
       <Materials documents={documents} onOrder={onOrder} />
       <Videos videos={videos} onOrder={onOrder} />
       <Gallery settings={settings} />
-      <FreeMaterial freeDoc={freeDoc} />
+      <FreeMaterial freeDocs={freeDocs} />
       <Faq faq={faq} />
       <Contact settings={settings} />
     </div>

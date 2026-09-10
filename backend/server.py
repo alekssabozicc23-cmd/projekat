@@ -387,10 +387,11 @@ PLACEHOLDER_DOCS = [
 
 
 async def seed_documents():
-    if await db.documents.count_documents({}) > 0:
-        return
+    existing = {d["title"] async for d in db.documents.find({}, {"_id": 0, "title": 1})}
     try:
         for title, category, group, pages, has_preview in PLACEHOLDER_DOCS:
+            if title in existing:
+                continue
             doc_id = str(uuid.uuid4())
             full = make_pdf(placeholder_pages(title, pages))
             full_path = f"{APP_NAME}/docs/{doc_id}.pdf"
@@ -595,8 +596,9 @@ async def create_lead(payload: LeadIn):
     doc = payload.model_dump()
     doc.update({"id": str(uuid.uuid4()), "created_at": now_iso()})
     await db.leads.insert_one(dict(doc))
-    free_doc = await db.documents.find_one({"category": "free", "is_active": True, "is_deleted": False})
-    if not free_doc:
+    free_docs = await db.documents.find({"category": "free", "is_active": True, "is_deleted": False},
+                                        NO_ID).sort("order", 1).to_list(50)
+    if not free_docs:
         raise HTTPException(status_code=404, detail="Besplatan materijal trenutno nije dostupan")
     notify = settings.get("notify_email")
     if notify:
@@ -607,11 +609,16 @@ async def create_lead(payload: LeadIn):
     await send_email(to=str(payload.email), subject="Tvoj besplatan materijal je spreman",
                      html=render_template(heading=f"Zdravo {payload.name},",
                                           intro="Hvala što si preuzeo/la besplatan materijal. Preuzimanje je već započelo na sajtu, a materijal ti uvek ostaje dostupan preko sajta.",
-                                          rows=[("Materijal", free_doc["title"])],
+                                          rows=[("Materijali", ", ".join(d["title"] for d in free_docs))],
                                           outro="Ako ti bilo šta ne bude jasno, slobodno se javi."),
                      reply_to=notify)
-    return {"download_url": f"/api/files/{free_doc['storage_path']}", "title": free_doc["title"],
-            "filename": free_doc.get("original_filename", "materijal.pdf")}
+    documents = [{
+        "id": d["id"],
+        "title": d["title"],
+        "download_url": f"/api/files/{d['storage_path']}",
+        "filename": d.get("original_filename", "materijal.pdf"),
+    } for d in free_docs]
+    return {"documents": documents, **documents[0]}
 
 
 # ---------------------------------------------------------------- admin

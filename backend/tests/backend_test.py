@@ -173,6 +173,71 @@ class TestLeads:
         assert r2.status_code == 200
         assert r2.headers.get("content-type", "").startswith("application/pdf")
 
+    def test_lead_returns_all_free_documents(self, s):
+        """New: /api/leads must return a documents[] with every active free doc,
+        and every download_url must serve a PDF."""
+        # baseline count of active free docs
+        pub_docs = s.get(f"{API}/documents").json()
+        free_active = [d for d in pub_docs if d["category"] == "free" and d["is_active"]]
+        assert len(free_active) >= 5, f"expected >=5 active free docs, got {len(free_active)}"
+
+        r = s.post(f"{API}/leads", json={"name": "TEST_LeadAll", "email": "lead_all@example.com"})
+        assert r.status_code == 200, r.text
+        body = r.json()
+        # backwards compat fields
+        assert body.get("download_url", "").startswith("/api/files/")
+        assert body.get("id")
+        # new documents array
+        docs = body.get("documents")
+        assert isinstance(docs, list) and len(docs) == len(free_active), \
+            f"documents count {len(docs) if docs else 0} != active free {len(free_active)}"
+        # ensure every free-active title is present
+        got_titles = {d["title"] for d in docs}
+        expected_titles = {d["title"] for d in free_active}
+        assert got_titles == expected_titles, f"missing titles: {expected_titles - got_titles}"
+        # each download_url serves a PDF
+        for d in docs:
+            assert d["download_url"].startswith("/api/files/"), d
+            r2 = s.get(f"{BASE_URL}{d['download_url']}")
+            assert r2.status_code == 200, f"{d['title']} -> {r2.status_code}"
+            assert r2.headers.get("content-type", "").startswith("application/pdf"), \
+                f"{d['title']} ct={r2.headers.get('content-type')}"
+
+    def test_lead_persisted_and_visible_in_admin(self, s, admin_headers):
+        email = f"TEST_persist_{uuid.uuid4().hex[:6]}@example.com"
+        r = s.post(f"{API}/leads", json={"name": "TEST_persist", "email": email})
+        assert r.status_code == 200
+        leads = s.get(f"{API}/admin/leads", headers=admin_headers).json()
+        assert any(l["email"] == email for l in leads), "lead not stored / not returned by admin"
+
+
+# ---- Free-doc toggle affects /leads response ----
+class TestFreeDocsToggle:
+    def test_hiding_free_doc_removes_from_leads(self, s, admin_headers):
+        pub_docs = s.get(f"{API}/documents").json()
+        free_active = [d for d in pub_docs if d["category"] == "free" and d["is_active"]]
+        assert len(free_active) >= 2
+        target = free_active[-1]  # last one to minimize disruption
+        did = target["id"]
+        try:
+            # hide it
+            r = s.put(f"{API}/admin/documents/{did}", json={"is_active": False}, headers=admin_headers)
+            assert r.status_code == 200 and r.json()["is_active"] is False
+            # /leads should no longer include it
+            r2 = s.post(f"{API}/leads", json={"name": "TEST_toggle", "email": "toggle@example.com"})
+            assert r2.status_code == 200
+            docs = r2.json().get("documents", [])
+            assert not any(d["id"] == did for d in docs), "hidden doc still returned by /leads"
+            # public /documents active list also excludes it
+            pub2 = s.get(f"{API}/documents").json()
+            hidden = next((d for d in pub2 if d["id"] == did), None)
+            assert hidden is None or hidden["is_active"] is False
+        finally:
+            # restore
+            s.put(f"{API}/admin/documents/{did}", json={"is_active": True}, headers=admin_headers)
+            pub3 = s.get(f"{API}/documents").json()
+            assert any(d["id"] == did and d["is_active"] for d in pub3), "failed to restore free doc active"
+
 
 # ---- Document preview ----
 class TestDocPreview:
