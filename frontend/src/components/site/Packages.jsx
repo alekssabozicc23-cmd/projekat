@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Check, Crown, MessageCircle } from "lucide-react";
+import { viberLink } from "../../lib/contact";
 import { Reveal, SectionTitle } from "./Reveal";
 
 export const Packages = ({ packages, settings, onOrder }) => {
@@ -108,7 +109,10 @@ export const Packages = ({ packages, settings, onOrder }) => {
                     Poruči paket
                   </button>
                   <a
-                    href={settings?.viber || "#kontakt"}
+                    href={viberLink(settings)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Otvori Viber čet sa Andrianom"
                     data-testid={`package-viber-${p.id}`}
                     className={`grid place-items-center rounded-full px-5 py-3 text-sm font-medium border transition-colors duration-300 ${
                       p.featured
@@ -117,7 +121,7 @@ export const Packages = ({ packages, settings, onOrder }) => {
                     }`}
                   >
                     <span className="inline-flex items-center gap-2">
-                      <MessageCircle className="w-4 h-4" /> Pitaj
+                      <MessageCircle className="w-4 h-4" /> Pitaj na Viberu
                     </span>
                   </a>
                 </div>

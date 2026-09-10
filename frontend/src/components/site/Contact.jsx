@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Phone, Mail, Instagram, MessageCircle, Send, MapPin } from "lucide-react";
 import { api } from "../../lib/api";
+import { viberLink, whatsappLink } from "../../lib/contact";
 import { Reveal, SectionTitle } from "./Reveal";
 
 export const Contact = ({ settings }) => {
@@ -31,8 +32,8 @@ export const Contact = ({ settings }) => {
     "w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none transition-all duration-300 focus:border-[#D4AF37] focus:bg-white/10";
 
   const channels = [
-    { icon: MessageCircle, label: "Viber", value: settings?.phone, href: settings?.viber, testid: "contact-viber" },
-    { icon: Phone, label: "WhatsApp", value: settings?.phone, href: settings?.whatsapp, testid: "contact-whatsapp" },
+    { icon: MessageCircle, label: "Viber", value: settings?.phone, href: viberLink(settings), testid: "contact-viber" },
+    { icon: Phone, label: "WhatsApp", value: settings?.phone, href: whatsappLink(settings), testid: "contact-whatsapp" },
     { icon: Instagram, label: "Instagram", value: settings?.instagram_handle || "@casovi.racunovodstva.andriana", href: settings?.instagram, testid: "contact-instagram" },
     { icon: Mail, label: "Email", value: settings?.email, href: `mailto:${settings?.email}`, testid: "contact-email" },
   ];

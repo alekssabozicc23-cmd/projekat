@@ -149,8 +149,7 @@ class StatusIn(BaseModel):
 DEFAULT_SETTINGS = {
     "id": "site",
     "phone": "064/455-25-67",
-    "viber": "viber://chat?number=%2B381644552567",
-    "whatsapp": "https://wa.me/381644552567",
+    "viber": "viber://chat?number=%2B381644552567",    "whatsapp": "https://wa.me/381644552567",
     "instagram": "https://www.instagram.com/casovi.racunovodstva.andriana/",
     "instagram_handle": "@casovi.racunovodstva.andriana",
     "email": "andritim.centar@gmail.com",
