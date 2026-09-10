@@ -35,7 +35,7 @@ export const Header = ({ settings }) => {
           : "bg-gradient-to-b from-[#0A1F44]/60 to-transparent"
       }`}
     >
-      <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex items-center justify-between h-[76px]">
+      <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex items-center justify-between gap-4 h-[76px]">
         <a href="#top" data-testid="logo-link" className="flex items-center gap-3 group">
           <span className={`grid place-items-center w-11 h-11 rounded-xl font-head font-extrabold text-lg shadow-md transition-all duration-300 group-hover:scale-105 ${scrolled ? "bg-[#0A1F44] text-[#D4AF37]" : "bg-[#D4AF37] text-[#0A1F44]"}`}>
             AT
@@ -63,12 +63,14 @@ export const Header = ({ settings }) => {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 lg:pl-5 lg:ml-2 lg:border-l lg:border-white/20">
           <a
             href={`tel:${(settings?.phone || "").replace(/[^\d+]/g, "")}`}
             data-testid="header-phone"
-            className={`hidden xl:inline-flex items-center gap-2 rounded-full text-sm px-4 py-2 whitespace-nowrap transition-colors duration-300 ${
-              scrolled ? "bg-[#0A1F44] hover:bg-[#1B3A6B] text-white" : "bg-white/12 hover:bg-white/25 border border-white/25 text-white backdrop-blur-sm"
+            className={`hidden md:inline-flex items-center gap-2 rounded-full text-sm px-4 py-2 whitespace-nowrap backdrop-blur-md border transition-colors duration-300 ${
+              scrolled
+                ? "bg-[#0A1F44]/8 border-[#0A1F44]/15 text-[#0A1F44]/75 hover:bg-[#0A1F44]/14"
+                : "bg-white/10 border-white/25 text-white/80 hover:bg-white/20 hover:text-white"
             }`}
           >
             <Phone className="w-4 h-4 text-[#D4AF37]" />
@@ -77,7 +79,11 @@ export const Header = ({ settings }) => {
           <Link
             to="/admin"
             data-testid="admin-link"
-            className={`hidden sm:inline-flex text-xs transition-colors ${scrolled ? "text-[#94A3B8] hover:text-[#0A1F44]" : "text-white/55 hover:text-white"}`}
+            className={`hidden sm:inline-flex text-xs rounded-full px-3 py-1.5 border backdrop-blur-md transition-colors ${
+              scrolled
+                ? "text-[#0A1F44]/60 border-[#0A1F44]/12 hover:text-[#0A1F44] hover:bg-[#0A1F44]/6"
+                : "text-white/60 border-white/20 hover:text-white hover:bg-white/12"
+            }`}
           >
             Admin
           </Link>

@@ -61,7 +61,7 @@ export const HeroSlider = ({ settings }) => {
           </div>
         ))}
 
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1F44]/88 via-[#0A1F44]/62 to-[#1B3A6B]/38" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1F44]/94 via-[#0A1F44]/72 to-[#1B3A6B]/42" />
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#0A1F44]/85 to-transparent" />
 
         <div className="relative h-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col justify-center pt-24 pb-28">
@@ -84,7 +84,7 @@ export const HeroSlider = ({ settings }) => {
             <p
               key={`sub-${idx}`}
               data-testid="hero-subtitle"
-              className="mt-6 text-sm md:text-lg text-white/85 leading-relaxed max-w-xl"
+              className="mt-6 text-sm md:text-lg text-white/90 leading-relaxed max-w-xl drop-shadow-[0_2px_12px_rgba(10,31,68,0.7)]"
             >
               {active.subtitle}
             </p>
