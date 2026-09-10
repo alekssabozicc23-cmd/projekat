@@ -1,0 +1,145 @@
+{
+  "theme": "Light & Deep Navy Hybrid",
+  "colors": {
+    "primary_dark_navy": "#0A1F44",
+    "secondary_navy": "#1B3A6B",
+    "accent_blue_medium": "#2E5CA8",
+    "accent_blue_light": "#4A90D9",
+    "warm_gold_cta": "#D4AF37",
+    "warm_gold_hover": "#C59B27",
+    "soft_beige_accent": "#F7F5F0",
+    "light_bg": "#F8FAFC",
+    "card_bg": "#FFFFFF",
+    "text_main": "#0F172A",
+    "text_muted": "#475569",
+    "border_subtle": "#E2E8F0"
+  },
+  "typography": {
+    "font_family_heading": "Poppins, sans-serif",
+    "font_family_body": "Inter, sans-serif",
+    "h1_hero": "text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0A1F44]",
+    "h2_section": "text-2xl sm:text-3xl lg:text-4xl font-semibold text-[#0A1F44]",
+    "h3_card": "text-xl sm:text-2xl font-medium text-[#1B3A6B]",
+    "body": "text-base leading-relaxed text-[#475569]"
+  },
+  "layout_and_grids": {
+    "container_padding": "px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto",
+    "section_spacing": "py-16 sm:py-24",
+    "bento_grid_hero": "grid grid-cols-1 md:grid-cols-12 gap-8 items-center",
+    "cards_grid": "grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8"
+  },
+  "components_structure": {
+    "navigation_header": {
+      "style": "fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-[#0A1F44]/90 text-white border-b border-white/10 shadow-md",
+      "items": ["O meni", "Za studente", "Za srednjoškolce", "Materijali", "Besplatne skripte", "Utisci", "FAQ", "Kontakt", "Admin Panel"]
+    },
+    "hero_section": {
+      "type": "Interactive Hero Slider with 3 slides + Live Stats Wall",
+      "slides": [
+        {
+          "title": "Priprema ispita iz računovodstva sa proverenim ekspertom",
+          "subtitle": "Preko 17 godina iskustva i više od 3.000 uspešno položenih ispita za studente i srednjoškolce.",
+          "badge": "Ekspertski časovi računovodstva",
+          "image": "https://images.unsplash.com/photo-1696960190591-60d693f4d50d?crop=entropy&cs=srgb&fm=jpg&q=85"
+        },
+        {
+          "title": "Položite računovodstvo bez stresa i iz prvog pokušaja",
+          "subtitle": "Individualni i grupni paketi prilagođeni programu vašeg fakulteta ili škole.",
+          "badge": "Proverena metodologija",
+          "image": "https://images.unsplash.com/photo-1741699428220-65f37f3fbbcb?crop=entropy&cs=srgb&fm=jpg&q=85"
+        },
+        {
+          "title": "31 desetka u 2024. godini – tvoja ocena je sledeća!",
+          "subtitle": "Skripte, zadaci sa prethodnih rokova i simulacija ispita za maksimalan rezultat.",
+          "badge": "Vrhunski rezultati",
+          "image": "https://images.unsplash.com/photo-1616386261012-8a328c89d5b6?crop=entropy&cs=srgb&fm=jpg&q=85"
+        }
+      ],
+      "stats_counter": [
+        {"value": "17+", "label": "Godina iskustva"},
+        {"value": "3.000+", "label": "Položenih ispita"},
+        {"value": "31", "label": "Desetka u 2024."}
+      ]
+    },
+    "about_section": {
+      "title": "O meni – Andriana Grozdanović",
+      "subtitle": "Diplomirani ekonomista sa stručnošću koja uliva poverenje",
+      "image": "https://images.unsplash.com/photo-1696960190591-60d693f4d50d?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "quote": "Računovodstvo nije bauk kada imate pravog mentora. Moj cilj je da učenje postane sistematično, bez stresa i sa zagarantovanim uspehom.",
+      "achievements": [
+        "17+ godina aktivnog predavanja i rada u struci",
+        "Preko 3.000 zadovoljnih i uspešnih studenata",
+        "Specijalizovane metode za EKOF, FON, Singidunum, FEFA i srednje ekonomske škole"
+      ]
+    },
+    "college_section": {
+      "title": "Ispiti za studente ekonomskih fakulteta",
+      "packages": [
+        {
+          "id": "osnovni",
+          "name": "Osnovni Paket",
+          "price": "12.000 RSD",
+          "features": ["10 časova teorije i zadataka", "Rad u malim grupama", "Sve osnovne skripte u PDF-u", "Viber grupa za pitanja"],
+          "badge": null
+        },
+        {
+          "id": "mesecni",
+          "name": "Intenzivni Paket Rok",
+          "price": "18.000 RSD",
+          "features": ["16 časova rada na ispitnim rokovima", "Simulacija kolokvijuma i ispita", "Zaštićene skripte sa rešenim zadacima", "Direktne konsultacije pred ispit"],
+          "badge": "Paket meseca"
+        },
+        {
+          "id": "vip",
+          "name": "Individualni VIP Mentor",
+          "price": "2.500 RSD / čas",
+          "features": ["1-na-1 rad sa Andrianom", "Potpuno prilagođen tempo", "Analiza specifičnih zadataka sa vašeg smera", "Dostupnost 24/7 za hitna pitanja"],
+          "badge": "Maksimalna posvećenost"
+        }
+      ]
+    },
+    "highschool_section": {
+      "title": "Priprema za srednjoškolce",
+      "weekly_scheduler": {
+        "slots_hours": ["12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"],
+        "interactive_booking": true
+      }
+    },
+    "materials_viewer": {
+      "title": "Materijali i skripte",
+      "description": "Pregledajte prvih 5 strana zaštićenih skripti i ispitnih zadataka.",
+      "preview_pages_count": 5,
+      "protected_mode": true
+    },
+    "free_lead_capture": {
+      "title": "Besplatni materijali i vodiči",
+      "description": "Preuzmite besplatni vodič '5 najčešćih grešaka na kolokvijumu iz računovodstva'.",
+      "form_fields": ["Ime i prezime", "Email adresa", "Fakultet / Škola"]
+    },
+    "testimonials_carousel": {
+      "title": "Iskustva naših učenika",
+      "items_count": 5
+    },
+    "faq_accordion": {
+      "title": "Često postavljana pitanja"
+    },
+    "contact_section": {
+      "channels": ["Viber", "WhatsApp", "Instagram", "Email", "Telefon"]
+    },
+    "admin_panel": {
+      "tabs": ["Slike", "Dokumenti", "Video", "Paketi i cene", "Rezervacije/Konsultacije", "Utisci", "FAQ", "Kontakt podaci", "Baza leadova"]
+    }
+  },
+  "image_urls": {
+    "hero_and_portrait": "https://images.unsplash.com/photo-1696960190591-60d693f4d50d?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "student_library": "https://images.unsplash.com/photo-1741699428220-65f37f3fbbcb?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "modern_office": "https://images.unsplash.com/photo-1616386261012-8a328c89d5b6?crop=entropy&cs=srgb&fm=jpg&q=85"
+  },
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "All interactive elements and key text nodes MUST contain clear data-testid attributes (e.g. data-testid='hero-cta-button', data-testid='booking-submit-button').",
+    "Do NOT use pure #000000 or full transparency behind text in headers or modals.",
+    "Use Lucide-react or Radix icons. Ensure generous padding and smooth hover interactions.",
+    "Ensure all text is written in natural, fluent Serbian language with a warm yet highly professional tone.",
+    "Admin panel must be fully interactive with simulated live data states and local storage support."
+  ]
+}
