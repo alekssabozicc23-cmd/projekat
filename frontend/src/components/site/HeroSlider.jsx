@@ -61,13 +61,9 @@ export const HeroSlider = ({ settings }) => {
           </div>
         ))}
 
-        <div className="absolute inset-0 bg-[#0A1F44]/55 lg:bg-[#0A1F44]/62" />
-        <div className="absolute inset-0 lg:hidden bg-gradient-to-t from-[#0A1F44] via-[#0A1F44]/80 to-[#0A1F44]/30" />
-        <div className="hidden lg:block absolute inset-y-0 left-0 w-[56%] bg-gradient-to-r from-[#0A1F44] via-[#0A1F44]/92 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#0A1F44]/85 to-transparent" />
 
-        <div className="relative h-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col justify-end lg:justify-center pt-24 pb-32 lg:pb-28">
-          <div className="max-w-xl lg:max-w-[46%]">
+        <div className="relative h-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col justify-end lg:justify-center pt-36 pb-16 lg:pt-48 lg:pb-16">
+          <div className="max-w-xl lg:max-w-[38%] xl:max-w-[35%]">
             <span
               data-testid="hero-badge"
               className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/45 bg-[#0A1F44]/40 backdrop-blur-sm px-4 py-1.5 text-xs sm:text-sm text-[#E9CF7C] font-semibold tracking-wide"
@@ -90,7 +86,7 @@ export const HeroSlider = ({ settings }) => {
             >
               {active.subtitle}
             </p>
-
+	           
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <a
                 href="#studenti"
