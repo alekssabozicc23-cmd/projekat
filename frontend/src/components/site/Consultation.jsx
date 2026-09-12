@@ -52,8 +52,8 @@ export const Consultation = ({ packages, prefill, onPrefillUsed }) => {
             <div className="mt-8 rounded-2xl bg-[#F7F5F0] border border-[#E2E8F0] p-6">
               <CalendarCheck className="w-6 h-6 text-[#2E5CA8]" />
               <p className="mt-3 text-sm text-[#475569] leading-relaxed">
-                Konsultacije su individualne, online ili u prostoru centra u Nišu. Traju dokle god ima pitanja —
-                cilj je da izađeš sa jasnom slikom, ne sa spiskom nedoumica.
+               Pošalji zahtev za individualni čas. Ostavi svoje podatke, a ja ti se javljam na viber ili mejl sa daljim informacijama oko zakazivanja časa.
+               Čas je online, individualan i traje 60 minuta..
               </p>
             </div>
           </Reveal>

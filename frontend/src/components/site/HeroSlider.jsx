@@ -29,12 +29,7 @@ export const HeroSlider = ({ settings }) => {
   const slides = settings?.hero_slides?.length ? settings.hero_slides : [];
   const [idx, setIdx] = useState(0);
 
-  useEffect(() => {
-    if (slides.length < 2) return;
-    const t = setInterval(() => setIdx((i) => (i + 1) % slides.length), 6500);
-    return () => clearInterval(t);
-  }, [slides.length]);
-
+ 
   const go = (d) => setIdx((i) => (i + d + slides.length) % slides.length);
   const active = slides[idx] || {};
 
@@ -55,9 +50,10 @@ export const HeroSlider = ({ settings }) => {
               src={s.image}
               alt={s.title || "Andri-Tim"}
               loading={i === 0 ? "eager" : "lazy"}
-              className="w-full h-full object-cover object-[center_18%] lg:object-[88%_28%]"
+             className="w-full h-full object-cover object-[center_18%] lg:object-[75%_22%]"
               style={{ animation: i === idx ? "heroZoom 12s ease-out forwards" : "none" }}
             />
+            <div className="absolute inset-0 bg-[#0A1F44]/35" />
           </div>
         ))}
 
@@ -105,44 +101,6 @@ export const HeroSlider = ({ settings }) => {
             </div>
           </div>
         </div>
-
-        {slides.length > 1 && (
-          <div className="absolute bottom-8 inset-x-0 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                {slides.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setIdx(i)}
-                    data-testid={`hero-dot-${i}`}
-                    aria-label={`Slika ${i + 1}`}
-                    className={`h-1.5 rounded-full transition-all duration-500 ${
-                      i === idx ? "w-12 bg-[#D4AF37]" : "w-5 bg-white/45 hover:bg-white/80"
-                    }`}
-                  />
-                ))}
-              </div>
-              <div className="flex items-center gap-2.5">
-                <button
-                  onClick={() => go(-1)}
-                  data-testid="hero-prev"
-                  aria-label="Prethodna slika"
-                  className="grid place-items-center w-11 h-11 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-colors"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => go(1)}
-                  data-testid="hero-next"
-                  aria-label="Sledeća slika"
-                  className="grid place-items-center w-11 h-11 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-colors"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </section>
 
       <section className="relative bg-gradient-to-b from-[#F6F9FD] to-white py-12 sm:py-16">
