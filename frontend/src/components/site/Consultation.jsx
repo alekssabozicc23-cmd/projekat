@@ -46,7 +46,7 @@ export const Consultation = ({ packages, prefill, onPrefillUsed }) => {
           <Reveal className="lg:col-span-5">
             <SectionTitle
               eyebrow="Konsultacije"
-              title="Zakaži konsultacije bez obaveze"
+              title="Zakaži individualni čas"
               subtitle="Bez kalendara i čekanja — pošalji zahtev sa predmetom i pitanjem, a ja ti se javljam na Viber ili mejl sa terminom koji ti odgovara."
             />
             <div className="mt-8 rounded-2xl bg-[#F7F5F0] border border-[#E2E8F0] p-6">

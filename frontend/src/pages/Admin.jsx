@@ -618,7 +618,7 @@ const TerminiTab = () => {
       </div>
 
       <div className={card}>
-        <h3 className="font-head text-lg font-semibold text-[#0A1F44]">Zahtevi za konsultacije ({consults.length})</h3>
+        <h3 className="font-head text-lg font-semibold text-[#0A1F44]">Zahtevi za individualni čas ({consults.length})</h3>
         <div className="mt-4 space-y-3">
           {consults.length === 0 && <p className="text-sm text-[#94A3B8]">Još nema zahteva.</p>}
           {consults.map((c) => (
