@@ -26,10 +26,24 @@ export const adminApi = axios.create({
   },
 });
 
+// Kada šaljemo FormData (upload fajla), uklanjamo ručno postavljeni
+// "application/json" header da bi axios/browser sam postavio ispravan
+// "multipart/form-data; boundary=..." header — bez ovoga backend ne može
+// da pročita fajl i vraća 422.
 adminApi.interceptors.request.use((config) => {
   const token = getToken();
   if (token) {
     config.headers["X-Admin-Token"] = token;
+  }
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+  return config;
+});
+
+api.interceptors.request.use((config) => {
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
   }
   return config;
 });
