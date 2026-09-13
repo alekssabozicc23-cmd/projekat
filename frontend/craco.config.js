@@ -1,9 +1,7 @@
-// craco.config.js
 const path = require("path");
 require("dotenv").config();
 
 // Check if we're in development/preview mode (not production build)
-// Craco sets NODE_ENV=development for start, NODE_ENV=production for build
 const isDevServer = process.env.NODE_ENV !== "production";
 
 // Environment variable overrides
@@ -12,6 +10,8 @@ const config = {
 };
 
 function makeDevServerV5Compatible(devServerConfig) {
+  if (!devServerConfig) return {};
+
   const {
     https,
     onAfterSetupMiddleware,
@@ -27,9 +27,10 @@ function makeDevServerV5Compatible(devServerConfig) {
       : https
         ? "https"
         : "http";
+
   compatibleConfig.headers = {
     ...compatibleConfig.headers,
-    "Cross-Origin-Resource-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "cross-origin",
   };
 
   if (onBeforeSetupMiddleware || setupMiddlewares) {
@@ -84,17 +85,21 @@ let webpackConfig = {
       '@': path.resolve(__dirname, 'src'),
     },
     configure: (webpackConfig) => {
+      // Safely filter out ForkTsCheckerWebpackPlugin if present
+      webpackConfig.plugins = webpackConfig.plugins.filter(
+        (plugin) => plugin && plugin.constructor && plugin.constructor.name !== "ForkTsCheckerWebpackPlugin"
+      );
 
       // Add ignored patterns to reduce watched directories
-        webpackConfig.watchOptions = {
-          ...webpackConfig.watchOptions,
-          ignored: [
-            '**/node_modules/**',
-            '**/.git/**',
-            '**/build/**',
-            '**/dist/**',
-            '**/coverage/**',
-            '**/public/**',
+      webpackConfig.watchOptions = {
+        ...webpackConfig.watchOptions,
+        ignored: [
+          '**/node_modules/**',
+          '**/.git/**',
+          '**/build/**',
+          '**/dist/**',
+          '**/coverage/**',
+          '**/public/**',
         ],
       };
 
@@ -108,17 +113,17 @@ let webpackConfig = {
 };
 
 webpackConfig.devServer = (devServerConfig) => {
+  if (!devServerConfig) return {};
+
   // Add health check endpoints if enabled
   if (config.enableHealthCheck && setupHealthEndpoints && healthPluginInstance) {
     const originalSetupMiddlewares = devServerConfig.setupMiddlewares;
 
     devServerConfig.setupMiddlewares = (middlewares, devServer) => {
-      // Call original setup if exists
       if (originalSetupMiddlewares) {
         middlewares = originalSetupMiddlewares(middlewares, devServer);
       }
 
-      // Setup health endpoints
       setupHealthEndpoints(devServer, healthPluginInstance);
 
       return middlewares;
@@ -128,7 +133,7 @@ webpackConfig.devServer = (devServerConfig) => {
   return devServerConfig;
 };
 
-// Wrap with visual edits (automatically adds babel plugin, dev server, and overlay in dev mode)
+// Apply dev server modifications only during local development
 if (isDevServer) {
   try {
     const { withVisualEdits } = require("@emergentbase/visual-edits/craco");
@@ -142,10 +147,12 @@ if (isDevServer) {
       throw err;
     }
   }
-}
 
-const configureDevServer = webpackConfig.devServer;
-webpackConfig.devServer = (devServerConfig) =>
-  makeDevServerV5Compatible(configureDevServer(devServerConfig));
+  const configureDevServer = webpackConfig.devServer;
+  if (typeof configureDevServer === "function") {
+    webpackConfig.devServer = (devServerConfig) =>
+      makeDevServerV5Compatible(configureDevServer(devServerConfig));
+  }
+}
 
 module.exports = webpackConfig;
