@@ -30,6 +30,15 @@ db = client[os.environ['DB_NAME']]
 app = FastAPI(title="Andri-Tim API")
 api = APIRouter(prefix="/api")
 
+# CORS middleware osiguran za sve izvore (uključujući Vercel preview domene)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 ADMIN_PASSWORD = os.environ['ADMIN_PASSWORD']
 TOKEN_SECRET = os.environ['ADMIN_TOKEN_SECRET']
 NO_ID = {"_id": 0}
@@ -149,7 +158,8 @@ class StatusIn(BaseModel):
 DEFAULT_SETTINGS = {
     "id": "site",
     "phone": "064/455-25-67",
-    "viber": "viber://chat?number=%2B381644552567",    "whatsapp": "https://wa.me/381644552567",
+    "viber": "viber://chat?number=%2B381644552567",
+    "whatsapp": "https://wa.me/381644552567",
     "instagram": "https://www.instagram.com/casovi.racunovodstva.andriana/",
     "instagram_handle": "@casovi.racunovodstva.andriana",
     "email": "andritim.centar@gmail.com",
@@ -877,14 +887,6 @@ async def admin_documents(x_admin_token: Optional[str] = Header(None)):
 
 
 app.include_router(api)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 @app.on_event("shutdown")
