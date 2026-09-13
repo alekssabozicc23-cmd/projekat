@@ -3,9 +3,12 @@ import { BookOpen, Eye, ShoppingBag, X } from "lucide-react";
 import { API } from "../../lib/api";
 import { Reveal, SectionTitle } from "./Reveal";
 
-export const Materials = ({ documents, onOrder }) => {
+export const Materials = ({ documents = [], onOrder }) => {
   const [preview, setPreview] = useState(null);
-  const skripte = documents.filter((d) => d.category === "skripta");
+  
+  // Sigurna provera niza
+  const safeDocs = Array.isArray(documents) ? documents : [];
+  const skripte = safeDocs.filter((d) => d?.category === "skripta");
 
   return (
     <section id="materijali" data-testid="materials-section" className="py-16 sm:py-24 bg-white">
@@ -46,7 +49,7 @@ export const Materials = ({ documents, onOrder }) => {
                       <Eye className="w-4 h-4" /> Preview
                     </button>
                     <button
-                      onClick={() => onOrder(d)}
+                      onClick={() => onOrder && onOrder(d)}
                       data-testid={`material-order-${d.id}`}
                       className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#0A1F44] hover:bg-[#1B3A6B] text-white px-5 py-3 text-sm font-semibold transition-colors duration-300"
                     >
@@ -98,7 +101,7 @@ export const Materials = ({ documents, onOrder }) => {
               <p className="text-xs text-[#475569]">Puna verzija se poručuje kontaktom — {preview.price || "cena na upit"}.</p>
               <button
                 onClick={() => {
-                  onOrder(preview);
+                  onOrder && onOrder(preview);
                   setPreview(null);
                 }}
                 data-testid="preview-order"
