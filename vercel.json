@@ -6,8 +6,8 @@
       "destination": "/backend/api/:path*"
     },
     {
-      "source": "/:(.*)",
-      "destination": "/frontend/:match*"
+      "source": "/:path*",
+      "destination": "/frontend/:path*"
     }
   ]
 }
