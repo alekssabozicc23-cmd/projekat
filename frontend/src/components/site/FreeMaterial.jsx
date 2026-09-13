@@ -9,6 +9,10 @@ export const FreeMaterial = ({ freeDocs = [] }) => {
   const [loading, setLoading] = useState(false);
   const [unlocked, setUnlocked] = useState([]);
 
+  // Sigurna provera niza da ne bi pucao kod nad null/undefined
+  const safeDocs = Array.isArray(freeDocs) ? freeDocs : [];
+  const safeUnlocked = Array.isArray(unlocked) ? unlocked : [];
+
   const submit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.email) {
@@ -18,7 +22,7 @@ export const FreeMaterial = ({ freeDocs = [] }) => {
     setLoading(true);
     try {
       const { data } = await api.post("/leads", form);
-      const docs = data.documents || [];
+      const docs = Array.isArray(data?.documents) ? data.documents : [];
       setUnlocked(docs);
       toast.success(`Otključano materijala: ${docs.length}. Preuzimanje je počelo.`);
       if (docs[0]) window.open(fileUrl(docs[0].download_url), "_blank", "noopener");
@@ -47,11 +51,11 @@ export const FreeMaterial = ({ freeDocs = [] }) => {
               />
 
               <div className="mt-7 space-y-3" data-testid="free-docs-list">
-                {freeDocs.length === 0 && (
+                {safeDocs.length === 0 && (
                   <p className="text-sm text-[#94A3B8]">Materijali se trenutno pripremaju.</p>
                 )}
-                {freeDocs.map((d) => {
-                  const ready = unlocked.find((u) => u.id === d.id);
+                {safeDocs.map((d) => {
+                  const ready = safeUnlocked.find((u) => u.id === d.id);
                   return (
                     <div
                       key={d.id}
@@ -82,7 +86,7 @@ export const FreeMaterial = ({ freeDocs = [] }) => {
                 })}
               </div>
 
-              {unlocked.length > 0 && (
+              {safeUnlocked.length > 0 && (
                 <p className="mt-6 inline-flex items-center gap-2 text-sm text-[#047857]" data-testid="free-unlocked-note">
                   <CheckCircle2 className="w-4 h-4" /> Svi materijali su otključani — preuzmi koliko želiš.
                 </p>
@@ -111,7 +115,7 @@ export const FreeMaterial = ({ freeDocs = [] }) => {
                   className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#D4AF37] hover:bg-[#C59B27] disabled:opacity-60 text-[#0A1F44] font-semibold py-3.5 text-sm transition-all duration-300 hover:-translate-y-0.5"
                 >
                   <Download className="w-4 h-4" />
-                  {loading ? "Pripremam..." : `Preuzmi besplatno${freeDocs.length > 1 ? ` (${freeDocs.length})` : ""}`}
+                  {loading ? "Pripremam..." : `Preuzmi besplatno${safeDocs.length > 1 ? ` (${safeDocs.length})` : ""}`}
                 </button>
                 <p className="text-[11px] text-white/45 leading-relaxed">
                   Slanjem podataka prihvataš{" "}
