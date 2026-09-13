@@ -14,6 +14,7 @@ const mondayOf = (d) => {
 };
 
 const fmt = (iso) => {
+  if (!iso) return "";
   const d = new Date(iso);
   return `${d.getDate()}.${d.getMonth() + 1}.`;
 };
@@ -33,16 +34,33 @@ export const Highschool = () => {
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async () => {
-    const iso = weekStart.toISOString().slice(0, 10);
-    const { data: res } = await api.get("/slots", { params: { week_start: iso } });
-    setData(res);
+    try {
+      const iso = weekStart.toISOString().slice(0, 10);
+      const { data: res } = await api.get("/slots", { params: { week_start: iso } });
+      
+      // Sigurna provera nivoa podataka iz odgovora
+      setData({
+        week: Array.isArray(res?.week) ? res.week : [],
+        hours: Array.isArray(res?.hours) ? res.hours : [],
+        slots: Array.isArray(res?.slots) ? res.slots : [],
+      });
+    } catch (err) {
+      console.error("Greška pri dohvatanju slotova:", err);
+      setData({ week: [], hours: [], slots: [] });
+    }
   }, [weekStart]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  const stateOf = (d, h) => data.slots.find((s) => s.slot_date === d && s.slot_time === h)?.state || "slobodno";
+  // Sigurne provere nizova
+  const safeWeek = Array.isArray(data?.week) ? data.week : [];
+  const safeHours = Array.isArray(data?.hours) ? data.hours : [];
+  const safeSlots = Array.isArray(data?.slots) ? data.slots : [];
+
+  const stateOf = (d, h) =>
+    safeSlots.find((s) => s?.slot_date === d && s?.slot_time === h)?.state || "slobodno";
 
   const shiftWeek = (n) => {
     const x = new Date(weekStart);
@@ -97,7 +115,7 @@ export const Highschool = () => {
               </button>
               <div className="text-center">
                 <div className="font-head text-sm sm:text-base font-semibold text-[#0A1F44]" data-testid="week-label">
-                  {data.week.length ? `${fmt(data.week[0])} – ${fmt(data.week[data.week.length - 1])}` : "..."}
+                  {safeWeek.length ? `${fmt(safeWeek[0])} – ${fmt(safeWeek[safeWeek.length - 1])}` : "..."}
                 </div>
                 <div className="text-xs text-[#94A3B8] mt-0.5 inline-flex items-center gap-1">
                   <Clock className="w-3 h-3" /> 14:00 – 19:00
@@ -117,17 +135,17 @@ export const Highschool = () => {
               <div className="min-w-[560px]" data-testid="slots-grid">
                 <div className="grid grid-cols-7 gap-2 mb-2">
                   <div />
-                  {data.week.map((d, i) => (
+                  {safeWeek.map((d, i) => (
                     <div key={d} className="text-center">
                       <div className="text-xs font-semibold text-[#0A1F44]">{DAYS[i]}</div>
                       <div className="text-[11px] text-[#94A3B8]">{fmt(d)}</div>
                     </div>
                   ))}
                 </div>
-                {data.hours.map((h) => (
+                {safeHours.map((h) => (
                   <div key={h} className="grid grid-cols-7 gap-2 mb-2">
                     <div className="text-xs text-[#475569] font-medium grid place-items-center">{h}</div>
-                    {data.week.map((d) => {
+                    {safeWeek.map((d) => {
                       const st = stateOf(d, h);
                       return (
                         <button
@@ -135,7 +153,7 @@ export const Highschool = () => {
                           data-testid={`slot-${d}-${h}`}
                           disabled={st !== "slobodno"}
                           onClick={() => setSelected({ date: d, time: h })}
-                          className={`h-11 rounded-xl border text-[11px] font-semibold transition-all duration-300 ${stateStyle[st]}`}
+                          className={`h-11 rounded-xl border text-[11px] font-semibold transition-all duration-300 ${stateStyle[st] || stateStyle.zatvoreno}`}
                         >
                           {st === "slobodno" ? "slobodno" : st === "na cekanju" ? "čeka" : st === "zauzeto" ? "zauzeto" : "—"}
                         </button>
