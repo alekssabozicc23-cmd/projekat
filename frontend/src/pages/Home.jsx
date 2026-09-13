@@ -22,23 +22,31 @@ export default function Home() {
   const [faq, setFaq] = useState([]);
   const [videos, setVideos] = useState([]);
   const [prefill, setPrefill] = useState("");
+  const [loading, setLoading] = useState(true);
   const consultRef = useRef(null);
 
   const load = useCallback(async () => {
-    const [s, p, d, t, f, v] = await Promise.all([
-      api.get("/settings"),
-      api.get("/packages"),
-      api.get("/documents"),
-      api.get("/testimonials"),
-      api.get("/faq"),
-      api.get("/videos"),
-    ]);
-    setSettings(s.data);
-    setPackages(p.data);
-    setDocuments(d.data);
-    setTestimonials(t.data);
-    setFaq(f.data);
-    setVideos(v.data);
+    try {
+      const [s, p, d, t, f, v] = await Promise.all([
+        api.get("/settings").catch(() => ({ data: {} })),
+        api.get("/packages").catch(() => ({ data: [] })),
+        api.get("/documents").catch(() => ({ data: [] })),
+        api.get("/testimonials").catch(() => ({ data: [] })),
+        api.get("/faq").catch(() => ({ data: [] })),
+        api.get("/videos").catch(() => ({ data: [] })),
+      ]);
+
+      setSettings(s.data || {});
+      setPackages(Array.isArray(p.data) ? p.data : []);
+      setDocuments(Array.isArray(d.data) ? d.data : []);
+      setTestimonials(Array.isArray(t.data) ? t.data : []);
+      setFaq(Array.isArray(f.data) ? f.data : []);
+      setVideos(Array.isArray(v.data) ? v.data : []);
+    } catch (err) {
+      console.error("Greška pri učitavanju:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -46,13 +54,17 @@ export default function Home() {
   }, [load]);
 
   const onOrder = (item) => {
-    setPrefill(item.group ? `${item.group} — ${item.name || item.title}` : item.title);
+    if (!item) return;
+    setPrefill(item.group ? `${item.group} — ${item.name || item.title}` : item.title || "");
     document.getElementById("konsultacije")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const freeDocs = documents.filter((d) => d.category === "free" && d.is_active);
+  // Sigurne provere niza da ne bi bilo crash-a
+  const safeDocs = Array.isArray(documents) ? documents : [];
+  const freeDocs = safeDocs.filter((d) => d && d.category === "free" && d.is_active);
+  const safeSettings = settings || {};
 
-  if (!settings) {
+  if (loading) {
     return (
       <div className="min-h-screen grid place-items-center bg-[#0A1F44]">
         <div className="text-white/60 text-sm font-head tracking-widest">ANDRI-TIM</div>
@@ -62,21 +74,21 @@ export default function Home() {
 
   return (
     <div className="bg-white">
-      <Header settings={settings} />
-      <HeroSlider settings={settings} />
-      <Testimonials testimonials={testimonials} gallery={settings.gallery} />
-      <About settings={settings} />
-      <Packages packages={packages} settings={settings} onOrder={onOrder} />
+      <Header settings={safeSettings} />
+      <HeroSlider settings={safeSettings} />
+      <Testimonials testimonials={testimonials} gallery={safeSettings.gallery || []} />
+      <About settings={safeSettings} />
+      <Packages packages={packages} settings={safeSettings} onOrder={onOrder} />
       <div ref={consultRef}>
         <Consultation packages={packages} prefill={prefill} onPrefillUsed={() => setPrefill("")} />
       </div>
       <Highschool />
-      <Materials documents={documents} onOrder={onOrder} />
+      <Materials documents={safeDocs} onOrder={onOrder} />
       <Videos videos={videos} onOrder={onOrder} />
-      <Gallery settings={settings} />
+      <Gallery settings={safeSettings} />
       <FreeMaterial freeDocs={freeDocs} />
       <Faq faq={faq} />
-      <Contact settings={settings} />
+      <Contact settings={safeSettings} />
     </div>
   );
 }
