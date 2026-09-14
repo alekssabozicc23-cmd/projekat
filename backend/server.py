@@ -379,13 +379,30 @@ async def seed():
         await db.testimonials.insert_many([
             {"id": str(uuid.uuid4()), "name": n, "school": s, "subject": sub, "rating": r, "text": t, "order": i}
             for i, (n, s, sub, r, t) in enumerate(DEFAULT_TESTIMONIALS)])
-    if await db.videos.count_documents({}) == 0:
-        await db.videos.insert_many([
-            {"id": str(uuid.uuid4()), "title": "Uvod u dvojno knjigovodstvo", "url": "",
-             "package": "Finansijsko računovodstvo", "order": 0, "created_at": now_iso()},
-        ])
-    await seed_videos()
-    await seed_documents()
+
+    seed_flags = existing.get("_seed_flags", {}) if existing else {}
+
+    if not seed_flags.get("videos_reset_v2"):
+        keep_titles = [
+            "Kontni okvir i logika knjiženja",
+            "Uvod u upravljačko računovodstvo",
+            "Prag rentabilnosti (break-even)",
+        ]
+        await db.videos.delete_many({"title": {"$nin": keep_titles}})
+        for i, title in enumerate(keep_titles):
+            existing_v = await db.videos.find_one({"title": title})
+            if not existing_v:
+                await db.videos.insert_one({
+                    "id": str(uuid.uuid4()), "title": title, "url": "",
+                    "package": "Osnove", "is_free": True, "order": i, "created_at": now_iso(),
+                })
+            else:
+                await db.videos.update_one({"title": title}, {"$set": {"is_free": True}})
+        await db.settings.update_one({"id": "site"}, {"$set": {"_seed_flags.videos_reset_v2": True}}, upsert=True)
+
+    if not seed_flags.get("documents"):
+        await seed_documents()
+        await db.settings.update_one({"id": "site"}, {"$set": {"_seed_flags.documents": True}}, upsert=True)
 
 
 PLACEHOLDER_DOCS = [
